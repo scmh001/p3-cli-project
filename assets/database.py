@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS players (
 )
 ''')
 
+
 # Create a table for game sessions
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS game_sessions (
@@ -26,6 +27,15 @@ CREATE TABLE IF NOT EXISTS game_sessions (
     FOREIGN KEY (player_id) REFERENCES players (player_id)
 )
 ''')
+
+cursor.execute("PRAGMA table_info(players)")
+columns = cursor.fetchall()
+column_names = [column[1] for column in columns]
+if "money_bag" not in column_names:
+    cursor.execute("""
+    ALTER TABLE players
+    ADD COLUMN money_bag INTEGER DEFAULT 100
+""")
 
 # Commit the changes and close the connection
 conn.commit()

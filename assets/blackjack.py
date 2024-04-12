@@ -64,14 +64,22 @@ def display_hand(hand, player):
         
     console.print(f"Value: {calculate_hand_value(hand)}\n")
 
-
-def add_player_if_not_exists(player_name):
+money = 100
+def add_player_if_not_exists(player_name, money):
     """Adds a player to the database if they don't already exist."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT OR IGNORE INTO players (name) VALUES (?)", (player_name,))
+        cursor.execute("INSERT OR IGNORE INTO players (name, money_bag) VALUES (?, ?)", (player_name, money,))
+                      
         conn.commit()
-
+        
+# def add_new_player_money_bag(money):
+#     money = 100
+#     """Adds a players money_bag to the database if player doesn't already exist."""
+#     with sqlite3.connect (DB_NAME) as conn:
+#         cursor = conn.cursor()
+#         cursor.execute("INSERT OR IGNORE INTO players (money_bag) VALUES (?)", (money))
+#         conn.commit()
 
 def get_player_id(player_name):
     """Retrieves a player's ID from the database."""
@@ -81,8 +89,20 @@ def get_player_id(player_name):
         player_id = cursor.fetchone()[0]
     return player_id
 
+def get_player_money_bag(player_name):
+    """Retrieves a player's Money from the database"""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT money_bag FROM players WHERE name = ?", (player_name,))
+        money_bag = cursor.fetchone()[0]
+    return money_bag
 
-def record_game_session(player_id, dealer_hand, player_hand, outcome):
+#***************************************************************************************8
+#
+#Should record_game_session be recorded upon prompt from user after they're done playing?
+#USER INPUT?
+#
+def record_game_session(player_id, money_bag, dealer_hand, player_hand, outcome):
     """Records the outcome of a game session."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
@@ -103,7 +123,7 @@ def blackjack_game():
             console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
             player_name = prompt("Please enter your player name: ").strip()
 
-        add_player_if_not_exists(player_name)
+        add_player_if_not_exists(player_name, money)
         player_id = get_player_id(player_name)
 
         deck = create_deck()

@@ -7,11 +7,13 @@ name = "pypi"
 rich = "*"
 typer = "*"
 prompt-toolkit = "*"
+npyscreen = "*"
 
 [dev-packages]
 rich = "*"
 typer = "*"
 prompt-toolkit = "*"
+npyscreen = "*"
 
 [requires]
 python_version = "3.8"

@@ -25,14 +25,33 @@ class BlackjackForm(npyscreen.ActionForm):
         self.deck = kwargs.pop('deck', None)
         super().__init__(*args, **kwargs)
 
+    
     def create(self):
-        # Add widgets for player name input, hit button, stand button, and multi-line displays
         self.add(npyscreen.TitleText, name="Player Name:", rely=1, relx=2)
         self.add(npyscreen.ButtonPress, name="Hit", when_pressed_function=self.hit, rely=5, relx=2)
         self.add(npyscreen.ButtonPress, name="Stand", when_pressed_function=self.stand, rely=7, relx=2)
-        self.player_hand_display = self.add(npyscreen.MultiLine, editable=False, max_height=10, rely=9, relx=2)
-        self.dealer_hand_display = self.add(npyscreen.MultiLine, editable=False, max_height=10, rely=9, relx=30)
-        # Initialize player_hand as an empty list
+                # Player hand display
+        self.player_hand_display = self.add(
+            npyscreen.MultiLine,
+            value=["Your hand will appear here"],
+            editable=False,
+            max_height=10,
+            rely=9,
+            relx=2,
+            max_width=40
+        )
+        
+        # Dealer hand display - adjusted 'relx' for better spacing
+        self.dealer_hand_display = self.add(
+            npyscreen.MultiLine,
+            value=["Dealer's hand will appear here"],
+            editable=True,
+            max_height=10,
+            rely=9,
+            relx=45,  # Increased to provide clear separation
+            max_width=40
+        )
+    # Initialize player_hand as an empty list
         self.player_hand = []
         self.dealer_hand = []  # Initialize dealer_hand as an empty list
 

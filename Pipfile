@@ -4,8 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+rich = "*"
+typer = "*"
+prompt-toolkit = "*"
 
 [dev-packages]
+rich = "*"
+typer = "*"
+prompt-toolkit = "*"
 
 [requires]
 python_version = "3.8"

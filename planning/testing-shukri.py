@@ -7,7 +7,6 @@ from rich.table import Table
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import yes_no_dialog
 from ascii import deck_of_cards
-from instructions import header, instructions
 
 # Constants
 SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
@@ -96,11 +95,6 @@ def record_game_session(player_id, dealer_hand, player_hand, outcome):
 def blackjack_game():
     """Main function to play a game of blackjack."""
     while True:
-    print(header)
-    print(instructions)
-    player_name = prompt("Please enter your player name: ").strip()
-    while not player_name:
-        console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
         player_name = prompt("Please enter your player name: ").strip()
         while not player_name:
             console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
@@ -205,6 +199,7 @@ def main():
         view_game_outcomes()
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()

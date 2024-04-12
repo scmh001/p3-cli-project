@@ -95,12 +95,9 @@ def record_game_session(player_id, dealer_hand, player_hand, outcome):
 
 def blackjack_game():
     """Main function to play a game of blackjack."""
-    while True:
     print(header)
     print(instructions)
-    player_name = prompt("Please enter your player name: ").strip()
-    while not player_name:
-        console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
+    while True:
         player_name = prompt("Please enter your player name: ").strip()
         while not player_name:
             console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")

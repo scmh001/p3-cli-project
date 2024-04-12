@@ -1,26 +1,40 @@
 import random
 import sqlite3
 import argparse
-import outcomes
+from rich.console import Console
+from rich.table import Table
+from prompt_toolkit import prompt
+from prompt_toolkit.shortcuts import yes_no_dialog
 
 # Constants
 SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
-VALUES = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
-          'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11}
+VALUES = {
+    '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+    'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11
+}
 
-# Functions
+# Database connection
+DB_NAME = 'jack.db'
+
+
 def create_deck():
+    """Creates a deck of 52 cards."""
     return [{'suit': suit, 'rank': rank} for suit in SUITS for rank in RANKS]
 
+
 def shuffle_deck(deck):
+    """Shuffles the deck in place."""
     random.shuffle(deck)
-    return deck
+
 
 def deal_card(deck):
+    """Deals a card from the deck."""
     return deck.pop()
 
-def calculate_value(hand):
+
+def calculate_hand_value(hand):
+    """Calculates the value of a hand."""
     value = sum(VALUES[card['rank']] for card in hand)
     aces = sum(card['rank'] == 'Ace' for card in hand)
     while value > 21 and aces:
@@ -28,26 +42,59 @@ def calculate_value(hand):
         aces -= 1
     return value
 
+
 def display_hand(hand, player):
-    print(f"{player}'s hand:")
+    """Displays a player's hand using rich.Table."""
+    console = Console()
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("Rank", style="dim", width=12)
+    table.add_column("Suit", justify="right", style="dim", width=15)
+    
     for card in hand:
-        print(f"{card['rank']} of {card['suit']}")
-    print("Value:", calculate_value(hand))
-    print()
+        table.add_row(card['rank'], card['suit'])
+    
+    console.print(table)
+    console.print(f"Value: {calculate_hand_value(hand)}\n")
+
+
+def add_player_if_not_exists(player_name):
+    """Adds a player to the database if they don't already exist."""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR IGNORE INTO players (name) VALUES (?)", (player_name,))
+        conn.commit()
+
+
+def get_player_id(player_name):
+    """Retrieves a player's ID from the database."""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT player_id FROM players WHERE name = ?", (player_name,))
+        player_id = cursor.fetchone()[0]
+    return player_id
+
+
+def record_game_session(player_id, dealer_hand, player_hand, outcome):
+    """Records the outcome of a game session."""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO game_sessions (player_id, dealer_hand_value, player_hand_value, outcome) VALUES (?, ?, ?, ?)",
+            (player_id, calculate_hand_value(dealer_hand), calculate_hand_value(player_hand), outcome)
+        )
+        conn.commit()
+
 
 def blackjack_game():
-    player_name = "Player 1"  # This could be dynamic based on user input
+    """Main function to play a game of blackjack."""
+    player_name = prompt("Please enter your player name: ").strip()
+    while not player_name:
+        console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
+        player_name = prompt("Please enter your player name: ").strip()
+
     add_player_if_not_exists(player_name)
     player_id = get_player_id(player_name)
-    player_name = ""
-    while not player_name.strip():
-        player_name = input("Please enter your player name: ")
-        if not player_name.strip():
-            print("Player name cannot be empty. Please enter a valid name.")
-    
-    add_player_if_not_exists(player_name)
-    player_id = get_player_id(player_name)
-    
+
     deck = create_deck()
     shuffle_deck(deck)
 
@@ -57,7 +104,7 @@ def blackjack_game():
     display_hand(player_hand, "Player")
     display_hand(dealer_hand, "Dealer")
 
-    while calculate_value(player_hand) < 21:
+    while calculate_hand_value(player_hand) < 21:
         action = input("Do you want to hit or stand? ").lower()
         if action == "hit":
             player_hand.append(deal_card(deck))
@@ -65,59 +112,69 @@ def blackjack_game():
         elif action == "stand":
             break
 
-    if calculate_value(player_hand) > 21:
+    player_value = calculate_hand_value(player_hand)
+    dealer_value = calculate_hand_value(dealer_hand)
+
+    if player_value > 21:
         print("Player busts! Dealer wins.")
-        return
-
-    while calculate_value(dealer_hand) < 17:
-        dealer_hand.append(deal_card(deck))
-
-    display_hand(dealer_hand, "Dealer")
-
-    player_value = calculate_value(player_hand)
-    dealer_value = calculate_value(dealer_hand)
-
-    if dealer_value > 21:
-        print("Dealer busts! Player wins.")
-    elif player_value > dealer_value:
-        print("Player wins!")
-    elif player_value < dealer_value:
-        print("Dealer wins!")
+        outcome = "Loss"
     else:
-        print("It's a tie!")
-        
-    # Connect to the database
-    conn = sqlite3.connect('jack.db')
-    cursor = conn.cursor()
+        while calculate_hand_value(dealer_hand) < 17:
+            dealer_hand.append(deal_card(deck))
+        display_hand(dealer_hand, "Dealer")
+
+        dealer_value = calculate_hand_value(dealer_hand)
+
+        if dealer_value > 21:
+            print("Dealer busts! Player wins.")
+            outcome = "Win"
+        elif player_value > dealer_value:
+            print("Player wins!")
+            outcome = "Win"
+        elif player_value < dealer_value:
+            print("Dealer wins!")
+            outcome = "Loss"
+        else:
+            print("It's a tie!")
+            outcome = "Tie"
+
+    record_game_session(player_id, dealer_hand, player_hand, outcome)
 
 
-    # Play the game
+def view_game_outcomes():
+    """Displays the outcomes of all game sessions using rich.Table."""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor = conn.cursor()
+        query = """
+        SELECT game_sessions.player_id, players.name, game_sessions.dealer_hand_value,
+               game_sessions.player_hand_value, game_sessions.outcome
+        FROM game_sessions
+        JOIN players ON game_sessions.player_id = players.player_id
+        """
+        try:
+            cursor.execute(query)
+            outcomes = cursor.fetchall()
 
-    # Record the game session outcome
-    outcome = "Win"  # This should be determined based on the game logic
-    cursor.execute("INSERT INTO game_sessions (player_id, dealer_hand_value, player_hand_value, outcome) VALUES (?, ?, ?, ?)",
-                   (player_id, calculate_value(dealer_hand), calculate_value(player_hand), outcome))
+            console = Console()
+            table = Table(show_header=True, header_style="bold blue")
+            table.add_column("Player ID", style="dim", width=12)
+            table.add_column("Player Name", style="dim", width=20)
+            table.add_column("Dealer Hand Value", justify="right", style="dim", width=20)
+            table.add_column("Player Hand Value", justify="right", style="dim", width=20)
+            table.add_column("Outcome", justify="right", style="dim", width=15)
 
-    # Commit the changes and close the connection
-    conn.commit()
-    conn.close()
-    
-def add_player_if_not_exists(player_name):
-    conn = sqlite3.connect('jack.db')
-    cursor = conn.cursor()
-    cursor.execute("INSERT OR IGNORE INTO players (name) VALUES (?)", (player_name,))
-    conn.commit()
-    conn.close()
+            for outcome in outcomes:
+                player_id, player_name, dealer_hand_value, player_hand_value, game_outcome = outcome
+                table.add_row(str(player_id), player_name, str(dealer_hand_value), str(player_hand_value), game_outcome)
 
-def get_player_id(player_name):
-    conn = sqlite3.connect('jack.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT player_id FROM players WHERE name = ?", (player_name,))
-    player_id = cursor.fetchone()[0]
-    conn.close()
-    return player_id
-    
+            console.print(table)
+
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+
+
 def main():
+    """Main function to handle command-line arguments and start the game."""
     parser = argparse.ArgumentParser(description="CLI Blackjack Game")
     parser.add_argument('--play', action='store_true', help='Start a new game of blackjack')
     parser.add_argument('--view', action='store_true', help='View game outcomes')
@@ -130,40 +187,6 @@ def main():
     else:
         parser.print_help()
 
-def view_game_outcomes():
-    # Connect to the SQLite database
-    conn = sqlite3.connect('jack.db')
-    cursor = conn.cursor()
-    
-    # SQL query to select game outcomes
-    query = "SELECT game_sessions.player_id, players.name, game_sessions.dealer_hand_value, game_sessions.player_hand_value, game_sessions.outcome FROM game_sessions JOIN players ON game_sessions.player_id = players.player_id"
-    
-    try:
-        cursor.execute(query)
-        outcomes = cursor.fetchall()
-        
-        # Check if there are any outcomes to display
-        if outcomes:
-            print("Game Outcomes:\n")
-            print(f"{'Player ID':<10} {'Player Name':<20} {'Dealer Hand':<12} {'Player Hand':<12} {'Outcome':<10}")
-            for outcome in outcomes:
-                player_id, player_name, dealer_hand_value, player_hand_value, game_outcome = outcome
-                print(f"{player_id:<10} {player_name:<20} {dealer_hand_value:<12} {player_hand_value:<12} {game_outcome:<10}")
-        else:
-            print("No game outcomes found.")
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
-    finally:
-        # Close the database connection
-        conn.close()
 
 if __name__ == "__main__":
     main()
-
-# Main game loop
-if __name__ == "__main__":
-    while True:
-        blackjack_game()
-        play_again = input("Do you want to play again? (yes/no) ").lower()
-        if play_again != "yes":
-            break

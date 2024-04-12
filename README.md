@@ -19,7 +19,7 @@ To view scores:
 6. sqlite3
 
 
-## Deliverables
+## Deliverables (User Stories)
 > As a user I can:
 * player draw
 * dealer draw
@@ -44,15 +44,22 @@ To view scores:
 * audio bytes to card on - draw, shuffle, losing
 * click integration
 * add multiple decks
-* 
+* visual representation of cards
+* ai implementation (multiple players)
+* pick up previous game (resume)
 
 
 ## Decision Tree
+>A decision tree of the flow of your CLI.  
+
+<img src="planning/decisiontree1.JPG" alt="decision-tree">
 
 ## Diagram
 > Diagram of database including relationships, constraints, intended CRUD actions
 
+<img src="planning/diagram2.JPG" alt="diagram">
+
 ## Trello Board
 >A kanban board showing how you will be dividing tasks among partners
 
-<img src="planning/trello1.JPG" alt="trello"/>
+<img src="planning/trello2.JPG" alt="trello"/>

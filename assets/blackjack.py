@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.table import Table
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import yes_no_dialog
+from ascii import deck_of_cards
 
 # Constants
 SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
@@ -45,16 +46,21 @@ def calculate_hand_value(hand):
 
 
 def display_hand(hand, player):
-    """Displays a player's hand using rich.Table."""
+    """Displays a player's hand with the name of each card above its ASCII art."""
     console = Console()
-    table = Table(show_header=True, header_style="bold magenta")
-    table.add_column("Rank", style="dim", width=12)
-    table.add_column("Suit", justify="right", style="dim", width=15)
-    
+    console.print(f"{player}'s hand:")
+
     for card in hand:
-        table.add_row(card['rank'], card['suit'])
-    
-    console.print(table)
+        # Construct the card name
+        card_name = f"{card['rank']} of {card['suit']}"
+        
+        # Retrieve the ASCII art for the card
+        ascii_art = deck_of_cards.get(card_name, "Card not found")
+        
+        # Print the card name above its ASCII art
+        console.print(card_name)
+        console.print(ascii_art)
+        
     console.print(f"Value: {calculate_hand_value(hand)}\n")
 
 
@@ -88,58 +94,64 @@ def record_game_session(player_id, dealer_hand, player_hand, outcome):
 
 def blackjack_game():
     """Main function to play a game of blackjack."""
-    player_name = prompt("Please enter your player name: ").strip()
-    while not player_name:
-        console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
+    while True:
         player_name = prompt("Please enter your player name: ").strip()
+        while not player_name:
+            console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
+            player_name = prompt("Please enter your player name: ").strip()
 
-    add_player_if_not_exists(player_name)
-    player_id = get_player_id(player_name)
+        add_player_if_not_exists(player_name)
+        player_id = get_player_id(player_name)
 
-    deck = create_deck()
-    shuffle_deck(deck)
+        deck = create_deck()
+        shuffle_deck(deck)
 
-    player_hand = [deal_card(deck), deal_card(deck)]
-    dealer_hand = [deal_card(deck), deal_card(deck)]
+        player_hand = [deal_card(deck), deal_card(deck)]
+        dealer_hand = [deal_card(deck), deal_card(deck)]
 
-    display_hand(player_hand, "Player")
-    display_hand(dealer_hand, "Dealer")
-
-    while calculate_hand_value(player_hand) < 21:
-        action = input("Do you want to hit or stand? ").lower()
-        if action == "hit":
-            player_hand.append(deal_card(deck))
-            display_hand(player_hand, "Player")
-        elif action == "stand":
-            break
-
-    player_value = calculate_hand_value(player_hand)
-    dealer_value = calculate_hand_value(dealer_hand)
-
-    if player_value > 21:
-        print("Player busts! Dealer wins.")
-        outcome = "Loss"
-    else:
-        while calculate_hand_value(dealer_hand) < 17:
-            dealer_hand.append(deal_card(deck))
+        display_hand(player_hand, "Player")
         display_hand(dealer_hand, "Dealer")
 
+        while calculate_hand_value(player_hand) < 21:
+            action = input("Do you want to hit or stand? ").lower()
+            if action == "hit":
+                player_hand.append(deal_card(deck))
+                display_hand(player_hand, "Player")
+            elif action == "stand":
+                break
+
+        player_value = calculate_hand_value(player_hand)
         dealer_value = calculate_hand_value(dealer_hand)
 
-        if dealer_value > 21:
-            print("Dealer busts! Player wins.")
-            outcome = "Win"
-        elif player_value > dealer_value:
-            print("Player wins!")
-            outcome = "Win"
-        elif player_value < dealer_value:
-            print("Dealer wins!")
+        if player_value > 21:
+            print("Player busts! Dealer wins.")
             outcome = "Loss"
         else:
-            print("It's a tie!")
-            outcome = "Tie"
+            while calculate_hand_value(dealer_hand) < 17:
+                dealer_hand.append(deal_card(deck))
+            display_hand(dealer_hand, "Dealer")
 
-    record_game_session(player_id, dealer_hand, player_hand, outcome)
+            dealer_value = calculate_hand_value(dealer_hand)
+
+            if dealer_value > 21:
+                print("Dealer busts! Player wins.")
+                outcome = "Win"
+            elif player_value > dealer_value:
+                print("Player wins!")
+                outcome = "Win"
+            elif player_value < dealer_value:
+                print("Dealer wins!")
+                outcome = "Loss"
+            else:
+                print("It's a tie!")
+                outcome = "Tie"
+
+        record_game_session(player_id, dealer_hand, player_hand, outcome)
+        
+        play_again = input("Do you want to play again? (yes/no): ").lower()
+        if play_again != "yes":
+            print("Thanks for playing!")
+            break
 
 
 def view_game_outcomes():

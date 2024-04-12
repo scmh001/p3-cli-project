@@ -1,6 +1,7 @@
 import random
 import sqlite3
 import argparse
+import click
 from rich.console import Console
 from rich.table import Table
 from prompt_toolkit import prompt

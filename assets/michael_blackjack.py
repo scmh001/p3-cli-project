@@ -15,37 +15,6 @@ VALUES = {
 DB_NAME = 'jack.db'
 
 
-<<<<<<< HEAD
-    
-    def create(self):
-        self.add(npyscreen.TitleText, name="Player Name:", rely=1, relx=2)
-        self.add(npyscreen.ButtonPress, name="Hit", when_pressed_function=self.hit, rely=5, relx=2)
-        self.add(npyscreen.ButtonPress, name="Stand", when_pressed_function=self.stand, rely=7, relx=2)
-                # Player hand display
-        self.player_hand_display = self.add(
-            npyscreen.MultiLine,
-            value=["Your hand will appear here"],
-            editable=False,
-            max_height=10,
-            rely=9,
-            relx=2,
-            max_width=40
-        )
-        
-        # Dealer hand display - adjusted 'relx' for better spacing
-        self.dealer_hand_display = self.add(
-            npyscreen.MultiLine,
-            value=["Dealer's hand will appear here"],
-            editable=True,
-            max_height=10,
-            rely=9,
-            relx=45,  # Increased to provide clear separation
-            max_width=40
-        )
-    # Initialize player_hand as an empty list
-        self.player_hand = []
-        self.dealer_hand = []  # Initialize dealer_hand as an empty list
-=======
 class BlackjackForm(npyscreen.ActionForm):
     def create(self):
         self.player_name_field = self.add(npyscreen.TitleText, name="Player Name:")
@@ -62,7 +31,6 @@ class BlackjackForm(npyscreen.ActionForm):
 
     def on_cancel(self):
         self.parentApp.setNextForm(None)
->>>>>>> 443366b5aa17d7724743fbf082eb2cb30d5b9173
 
     def hit(self):
         self.hit_button.editable = True  # Re-enable Hit button

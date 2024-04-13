@@ -1,6 +1,10 @@
 # created by virtualenv automatically
-     
-    ../assets/jack.db
-    ../jack.db
-    jack.db
-    /.venv
+#Ignore database
+assets/jack.db
+    
+jack.db
+
+#Ignore virtual Environment
+.venv/
+
+*.pyc

@@ -19,6 +19,7 @@ VALUES = {
 # Database connection
 DB_NAME = 'jack.db'
 
+from prompt_toolkit.shortcuts import button_dialog
 
 def create_deck():
     """Creates a deck of 52 cards."""
@@ -63,7 +64,7 @@ def display_hand(hand, player):
         
     console.print(f"Value: {calculate_hand_value(hand)}\n")
 
-money = 100
+
 def add_player_if_not_exists(player_name, money):
     """Adds a player to the database if they don't already exist."""
     with sqlite3.connect(DB_NAME) as conn:
@@ -80,22 +81,45 @@ def add_player_if_not_exists(player_name, money):
 #         cursor.execute("INSERT OR IGNORE INTO players (money_bag) VALUES (?)", (money))
 #         conn.commit()
 
+
 def get_player_id(player_name):
     """Retrieves a player's ID from the database."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT player_id FROM players WHERE name = ?", (player_name,))
-        player_id = cursor.fetchone()[0]
-    return player_id
+        result = cursor.fetchone()
+        if result is None:
+            return None
+        else:
+            player_id = result[0]
+            return player_id
 
-def get_player_money_bag(player_name):
+
+def get_player_money_bag(player_id):
     """Retrieves a player's Money from the database"""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT money_bag FROM players WHERE name = ?", (player_name,))
-        money_bag = cursor.fetchone()[0]
-    return money_bag
-
+        cursor.execute("SELECT money_bag FROM players WHERE player_id = ?", (player_id,))
+        result = cursor.fetchone()
+        if result is None:
+            return None
+        else:
+            money_bag = result[0]
+            return money_bag
+        
+        
+def update_player_money_bag(player_id, new_total):
+    """Updates the players money_bag"""
+    with sqlite3.connect(DB_NAME) as conn:
+        cursor=conn.cursor()
+        sql_update_query = """
+        UPDATE players
+        SET money_bag = ?
+        WHERE player_id = ?
+        """
+        cursor.execute(sql_update_query, (new_total, player_id))
+        conn.commit()
+    
 #***************************************************************************************8
 #
 #Should record_game_session be recorded upon prompt from user after they're done playing?
@@ -121,10 +145,48 @@ def blackjack_game():
         while not player_name:
             console.print("Player name cannot be empty. Please enter a valid name.", style="bold red")
             player_name = prompt("Please enter your player name: ").strip()
-
-        add_player_if_not_exists(player_name, money)
+       
         player_id = get_player_id(player_name)
-
+        
+        if player_id:
+            money_bag = get_player_money_bag(player_id)
+            print(f'Welcome back to the game {player_name}, we have your ${money_bag} at the table for you')
+            
+        else:
+            initial_money = 100
+            add_player_if_not_exists(player_name, initial_money)
+            player_id = get_player_id(player_name)
+            money_bag = initial_money
+            print(f'Looks like we, haven\'t seen you before, we\'ll start you out with the max buy in of $100.')
+            
+        if  1 <= money_bag <= 300:
+            print("Max table bet is $20:")
+            bet = prompt("Please place your bet a number value less than or equal to $20").strip()
+            new_bag = get_player_money_bag(player_id) - bet
+            update_player_money_bag(player_id, new_bag)
+            return bet
+        elif 301 <= money_bag <= 750:
+            print("Max table bet is $50:")
+            bet = prompt("Please place your bet a number value less than or equal to $50").strip()
+            new_bag = get_player_money_bag(player_id) - bet
+            update_player_money_bag(player_id, new_bag)
+            return bet
+        elif 751 <= money_bag <= 1000:
+            print("Max table bet is $100:")
+            bet = prompt("Please place your bet a number value less than or equal to $100").strip()
+            new_bag = get_player_money_bag(player_id) - bet
+            update_player_money_bag(player_id, new_bag)
+            return bet
+        elif 1001 <= money_bag <= 10000:
+            print("Max table bet is $500:")
+            bet = prompt("Please place your bet a number value less than or equal to $500").strip()
+            new_bag = get_player_money_bag(player_id) - bet
+            update_player_money_bag(player_id, new_bag)
+            return bet
+            
+#####   Math and method for updating money_bag based on bet
+            
+                  
         deck = create_deck()
         shuffle_deck(deck)
 
@@ -146,8 +208,9 @@ def blackjack_game():
         dealer_value = calculate_hand_value(dealer_hand)
 
         if player_value > 21:
-            print("Player busts! Dealer wins.")
+            print(f"Player busts! You lose ${bet} Dealer wins.")
             outcome = "Loss"
+            
         else:
             while calculate_hand_value(dealer_hand) < 17:
                 dealer_hand.append(deal_card(deck))
@@ -156,13 +219,16 @@ def blackjack_game():
             dealer_value = calculate_hand_value(dealer_hand)
 
             if dealer_value > 21:
-                print("Dealer busts! Player wins.")
+                print(f"Dealer busts! Player wins ${bet}.")
+                new_bag  = get_player_money_bag(player_id) + (2 * bet)
                 outcome = "Win"
+                
             elif player_value > dealer_value:
-                print("Player wins!")
+                print(f"Player wins ${bet}!")
+                new_bag  = get_player_money_bag(player_id) + (2 * bet)
                 outcome = "Win"
             elif player_value < dealer_value:
-                print("Dealer wins!")
+                print(f"Dealer wins! You lose ${bet}")
                 outcome = "Loss"
             else:
                 print("It's a tie!")

@@ -1,4 +1,5 @@
 import random
+import os
 from playsound import playsound
 from typing import List, Dict
 from rich.console import Console
@@ -105,6 +106,7 @@ def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
 
 def play_game(session) -> None:
     """Handles the game logic for a single game of blackjack."""
+    os.system("clear")
     deck = create_deck()
     shuffle_deck(deck)
 
@@ -117,6 +119,7 @@ def play_game(session) -> None:
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit or stand? ")
         if action == "hit":
+            os.system("clear")
             player_hand.append(deal_card(deck))
             display_hand(player_hand, "Player")
         elif action == "stand":

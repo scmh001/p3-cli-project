@@ -125,7 +125,7 @@ def update_player_money_bag(player_id, new_total):
 #Should record_game_session be recorded upon prompt from user after they're done playing?
 #USER INPUT?
 #
-def record_game_session(player_id, money_bag, dealer_hand, player_hand, outcome):
+def record_game_session(player_id, dealer_hand, player_hand, outcome):
     """Records the outcome of a game session."""
     with sqlite3.connect(DB_NAME) as conn:
         cursor = conn.cursor()
@@ -150,8 +150,15 @@ def blackjack_game():
         
         if player_id:
             money_bag = get_player_money_bag(player_id)
-            print(f'Welcome back to the game {player_name}, we have your ${money_bag} at the table for you')
+            if money_bag > 0:
+                print(f'Welcome back to the game {player_name}, we have your ${money_bag} at the table for you')
+            else:
+                update_player_money_bag(player_id, 100)
+                print(f'Welcome back to the game {player_name}. Looks like you had a bad run of cards\nlast round, we\'ve extended your credit another $100')
+                money_bag = get_player_money_bag(player_id)
+                print(f"Total Money: {money_bag}")
             
+
         else:
             initial_money = 100
             add_player_if_not_exists(player_name, initial_money)
@@ -161,32 +168,34 @@ def blackjack_game():
             
         if  1 <= money_bag <= 300:
             print("Max table bet is $20:")
-            bet = prompt("Please place your bet a number value less than or equal to $20").strip()
+            bet_input = prompt("Please place your bet a number value less than or equal to $20:").strip()
+            bet = int(bet_input)
+            #########NEED TO FILTER INCORRECT BETS  ALL OF THIS COULD BE A HELPER METHOD
             new_bag = get_player_money_bag(player_id) - bet
             update_player_money_bag(player_id, new_bag)
-            return bet
+            
         elif 301 <= money_bag <= 750:
             print("Max table bet is $50:")
-            bet = prompt("Please place your bet a number value less than or equal to $50").strip()
+            bet_input = prompt("Please place your bet a number value less than or equal to $50:").strip()
+            bet = int(bet_input)
             new_bag = get_player_money_bag(player_id) - bet
             update_player_money_bag(player_id, new_bag)
-            return bet
+            
         elif 751 <= money_bag <= 1000:
             print("Max table bet is $100:")
-            bet = prompt("Please place your bet a number value less than or equal to $100").strip()
+            bet_input = prompt("Please place your bet a number value less than or equal to $100:").strip()
+            bet = int(bet_input)
             new_bag = get_player_money_bag(player_id) - bet
             update_player_money_bag(player_id, new_bag)
-            return bet
+            
         elif 1001 <= money_bag <= 10000:
             print("Max table bet is $500:")
-            bet = prompt("Please place your bet a number value less than or equal to $500").strip()
+            bet_input = prompt("Please place your bet a number value less than or equal to $500:").strip()
+            bet = int(bet_input)
             new_bag = get_player_money_bag(player_id) - bet
             update_player_money_bag(player_id, new_bag)
-            return bet
             
-#####   Math and method for updating money_bag based on bet
-            
-                  
+               
         deck = create_deck()
         shuffle_deck(deck)
 
@@ -209,6 +218,7 @@ def blackjack_game():
 
         if player_value > 21:
             print(f"Player busts! You lose ${bet} Dealer wins.")
+            print(f"Total money: ${get_player_money_bag(player_id)}")
             outcome = "Loss"
             
         else:
@@ -221,17 +231,23 @@ def blackjack_game():
             if dealer_value > 21:
                 print(f"Dealer busts! Player wins ${bet}.")
                 new_bag  = get_player_money_bag(player_id) + (2 * bet)
+                update_player_money_bag(player_id, new_bag)
+                print(f"Total money: ${get_player_money_bag(player_id)}")
                 outcome = "Win"
                 
             elif player_value > dealer_value:
                 print(f"Player wins ${bet}!")
                 new_bag  = get_player_money_bag(player_id) + (2 * bet)
+                update_player_money_bag(player_id, new_bag)
+                print(f"Total money: ${get_player_money_bag(player_id)}")
                 outcome = "Win"
             elif player_value < dealer_value:
                 print(f"Dealer wins! You lose ${bet}")
+                print(f"Total money: ${get_player_money_bag(player_id)}")
                 outcome = "Loss"
             else:
                 print("It's a tie!")
+                print(f"Total money: ${get_player_money_bag(player_id)}")
                 outcome = "Tie"
 
         record_game_session(player_id, dealer_hand, player_hand, outcome)

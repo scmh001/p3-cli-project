@@ -1,3 +1,4 @@
+from instructions import header, instructions
 import random
 import sqlite3
 import argparse
@@ -17,6 +18,10 @@ DB_NAME = 'jack.db'
 
 class BlackjackForm(npyscreen.ActionForm):
     def create(self):
+        self.instructions_field = self.add(npyscreen.MultiLineEdit, 
+            value=header + "\n\n" + instructions,
+            max_height=10, editable=False, relx=1, rely=4, 
+            name="Instructions:")
         self.player_name_field = self.add(npyscreen.TitleText, name="Player Name:")
         self.hit_button = self.add(npyscreen.ButtonPress, name="Hit", when_pressed_function=self.hit)
         self.add(npyscreen.ButtonPress, name="Stand", when_pressed_function=self.stand)
@@ -130,6 +135,9 @@ def record_game_session(player_id, dealer_hand, player_hand, outcome):
 
 class BlackjackApp(npyscreen.NPSAppManaged):
     def onStart(self):
+        
+        print(header)
+        print(instructions)
         self.addForm("MAIN", BlackjackForm)
 
 

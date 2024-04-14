@@ -15,11 +15,19 @@ console = Console()
 
 def play_card_draw_sound():
     """Plays the sound effect for drawing a card."""
-    playsound("/Users/michaeldipasquale/Development/code/phase-3/p3-cli-project/assets/cardsounds.py/card-sounds-35956.mp3")
+    playsound("cardsounds.py/card-sounds-35956.mp3")
 
 def play_shuffle_sound():
     """Plays the sound effect for shuffling the deck."""
-    playsound("/Users/michaeldipasquale/Development/code/phase-3/p3-cli-project/assets/cardsounds.py/shuffle-cards-46455.mp3")
+    playsound("cardsounds.py/shuffle-cards-46455.mp3")
+    
+def play_win_sound():
+    """Plays a victory sound"""
+    playsound("cardsounds.py/success-1-6297.mp3")
+    
+def play_loss_sound():
+    """Plays a loss buzzer"""
+    playsound("cardsounds.py/wrong-buzzer-6268.mp3")
     
 def create_deck() -> List[Dict[str, str]]:
     """Creates a deck of 52 cards."""
@@ -89,18 +97,23 @@ def get_user_input(prompt_text: str) -> str:
 def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
     """Displays the outcome of the game and returns it as a string."""
     if player_hand_value > 21:
+        play_loss_sound()
         console.print("Player busts! Dealer wins.")
         return "Loss"
     elif dealer_hand_value > 21:
+        play_win_sound()
         console.print("Dealer busts! Player wins.")
         return "Win"
     elif player_hand_value > dealer_hand_value:
+        play_win_sound()
         console.print("Player wins!")
         return "Win"
     elif player_hand_value < dealer_hand_value:
+        play_loss_sound()
         console.print("Dealer wins!")
         return "Loss"
     else:
+        play_loss_sound()
         console.print("It's a tie!")
         return "Tie"
 
@@ -122,6 +135,7 @@ def play_game(session) -> None:
             os.system("clear")
             player_hand.append(deal_card(deck))
             display_hand(player_hand, "Player")
+            display_hand(dealer_hand, "Dealer")
         elif action == "stand":
             break
 

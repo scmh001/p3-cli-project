@@ -47,17 +47,18 @@ To view scores:
 * visual representation of cards
 * ai implementation (multiple players)
 * pick up previous game (resume)
-
+* add ascii art pictures for each card
+* migrate to SQLAlchemy
 
 ## Decision Tree
 >A decision tree of the flow of your CLI.  
 
-<img src="planning/decisiontree1.JPG" alt="decision-tree">
+<img src="planning/decisiontree2.JPG" alt="decision-tree">
 
 ## Diagram
 > Diagram of database including relationships, constraints, intended CRUD actions
 
-<img src="planning/diagram2.JPG" alt="diagram">
+<img src="planning/diagram5.JPG" alt="diagram">
 
 ## Trello Board
 >A kanban board showing how you will be dividing tasks among partners

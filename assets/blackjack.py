@@ -7,6 +7,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import yes_no_dialog
 from ascii import deck_of_cards
 from instructions import header, instructions
+from betting import place_bets
 
 # Constants
 SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
@@ -157,43 +158,58 @@ def blackjack_game():
                 print(f'Welcome back to the game {player_name}. Looks like you had a bad run of cards\nlast round, we\'ve extended your credit another $100')
                 money_bag = get_player_money_bag(player_id)
                 print(f"Total Money: {money_bag}")
-            
-
         else:
             initial_money = 100
             add_player_if_not_exists(player_name, initial_money)
             player_id = get_player_id(player_name)
             money_bag = initial_money
-            print(f'Looks like we, haven\'t seen you before, we\'ll start you out with the max buy in of $100.')
+            print(f'Looks like we haven\'t seen you before, we\'ll start you out with the max buy in of $100.')
+            
             
         if  1 <= money_bag <= 300:
-            print("Max table bet is $20:")
-            bet_input = prompt("Please place your bet a number value less than or equal to $20:").strip()
-            bet = int(bet_input)
-            #########NEED TO FILTER INCORRECT BETS  ALL OF THIS COULD BE A HELPER METHOD
-            new_bag = get_player_money_bag(player_id) - bet
-            update_player_money_bag(player_id, new_bag)
+            
+            place_bets(20, player_id, get_player_money_bag, update_player_money_bag)
+            
+            # print("Max table bet is $20:")
+            # bet_input = prompt("Please place your bet a number value less than or equal to $20:").strip()
+            # bet = int(bet_input)
+            # #########NEED TO FILTER INCORRECT BETS  ALL OF THIS COULD BE A HELPER METHOD
+            # new_bag = get_player_money_bag(player_id) - bet
+            # update_player_money_bag(player_id, new_bag)
             
         elif 301 <= money_bag <= 750:
-            print("Max table bet is $50:")
-            bet_input = prompt("Please place your bet a number value less than or equal to $50:").strip()
-            bet = int(bet_input)
-            new_bag = get_player_money_bag(player_id) - bet
-            update_player_money_bag(player_id, new_bag)
+            
+            place_bets(50, player_id, get_player_money_bag, update_player_money_bag)
+            
+            # print("Max table bet is $50:")
+            # bet_input = prompt("Please place your bet a number value less than or equal to $50:").strip()
+            # bet = int(bet_input)
+            # new_bag = get_player_money_bag(player_id) - bet
+            # update_player_money_bag(player_id, new_bag)
             
         elif 751 <= money_bag <= 1000:
-            print("Max table bet is $100:")
-            bet_input = prompt("Please place your bet a number value less than or equal to $100:").strip()
-            bet = int(bet_input)
-            new_bag = get_player_money_bag(player_id) - bet
-            update_player_money_bag(player_id, new_bag)
+            
+            place_bets(100, player_id, get_player_money_bag, update_player_money_bag)
+            
+            # print("Max table bet is $100:")
+            # bet_input = prompt("Please place your bet a number value less than or equal to $100:").strip()
+            # bet = int(bet_input)
+            # new_bag = get_player_money_bag(player_id) - bet
+            # update_player_money_bag(player_id, new_bag)
             
         elif 1001 <= money_bag <= 10000:
-            print("Max table bet is $500:")
-            bet_input = prompt("Please place your bet a number value less than or equal to $500:").strip()
-            bet = int(bet_input)
-            new_bag = get_player_money_bag(player_id) - bet
-            update_player_money_bag(player_id, new_bag)
+            
+            place_bets(500, player_id, get_player_money_bag, update_player_money_bag)
+            
+            
+            # print("Max table bet is $500:")
+            # bet_input = prompt("Please place your bet a number value less than or equal to $500:").strip()
+            # bet = int(bet_input)
+            # new_bag = get_player_money_bag(player_id) - bet
+            # update_player_money_bag(player_id, new_bag)
+        elif 10000 <= money_bag:
+            
+            place_bets(1000, player_id, get_player_money_bag, update_player_money_bag)
             
                
         deck = create_deck()
@@ -204,6 +220,14 @@ def blackjack_game():
 
         display_hand(player_hand, "Player")
         display_hand(dealer_hand, "Dealer")
+        
+        if calculate_hand_value(player_hand) == 21:
+            print(f'{header}')
+            print(f"Player wins ${bet}!")
+            new_bag  = get_player_money_bag(player_id) + (2.5 * bet)
+            update_player_money_bag(player_id, new_bag)
+            print(f"Total money: ${get_player_money_bag(player_id)}")
+            outcome = "Win"
 
         while calculate_hand_value(player_hand) < 21:
             action = input("Do you want to hit or stand? ").lower()

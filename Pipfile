@@ -8,12 +8,16 @@ rich = "*"
 typer = "*"
 prompt-toolkit = "*"
 npyscreen = "*"
+argparse = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 rich = "*"
 typer = "*"
 prompt-toolkit = "*"
 npyscreen = "*"
+argparse = "*"
+sqlalchemy = "*"
 
 [requires]
 python_version = "3.8"

@@ -38,3 +38,39 @@ stretch
 > as a user i can
 * "hit" "stand"
 * place bet
+
+
+
+python blackjack.py --play
+|
+`---> Enter player name
+     |
+     `---> Deck Shuffled
+          |
+          `---> Cards are dealt
+               |
+               |   `---> Displays cards dealt
+               |       |
+               |       `---> Calculate hand total
+               |           |
+               |           `---> Players chooses hit / stand
+               |               |
+               |               `---> Game Executed
+               |                   |
+               |                   `---> Game Recorded
+               |
+               `---> [Potential additional branches:]
+                     |
+                     `---> Dealer's hand dealt and calculated
+                          |
+                          `---> Compare player and dealer hands
+                               |
+                               |   `---> Determine winner (player, dealer or push)
+                               |       |
+                               |       `---> Update player score/chips
+                               |
+                               `---> Offer player to play another hand
+                                    |
+                                    |   `---> [If yes, loop back to shuffling deck]
+                                    |
+                                    `---> [If no, exit game]

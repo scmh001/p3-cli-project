@@ -1,6 +1,8 @@
 import random
 import os
-from playsound import playsound
+import pyaudio
+import wave
+# from playsound import playsound
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -13,21 +15,42 @@ from sqlalchemy.orm import sessionmaker
 
 console = Console()
 
+def play_sound(file_path: str):
+    chunk = 128
+    wf = wave.open(file_path, 'rb')
+    p = pyaudio.PyAudio()
+    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
+    data = wf.readframes(chunk)
+    while data:
+        stream.write(data)
+        data = wf.readframes(chunk)
+        
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+    
+
+
+
 def play_card_draw_sound():
     """Plays the sound effect for drawing a card."""
-    playsound("cardsounds.py/card-sounds-35956.mp3")
+    play_sound("cardsounds.py/card-sounds-35956.wav")
 
 def play_shuffle_sound():
     """Plays the sound effect for shuffling the deck."""
-    playsound("cardsounds.py/shuffle-cards-46455.mp3")
+    play_sound("cardsounds.py/shuffle-cards-46455.wav")
     
 def play_win_sound():
     """Plays a victory sound"""
-    playsound("cardsounds.py/success-1-6297.mp3")
+    play_sound("cardsounds.py/success-1-6297.wav")
     
 def play_loss_sound():
     """Plays a loss buzzer"""
-    playsound("cardsounds.py/wrong-buzzer-6268.mp3")
+    play_sound("cardsounds.py/wrong-buzzer-6268.wav")
     
 def create_deck() -> List[Dict[str, str]]:
     """Creates a deck of 52 cards."""

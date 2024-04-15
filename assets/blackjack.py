@@ -11,10 +11,10 @@ from instructions import header, instructions
 from config import SUITS, RANKS, VALUES
 from database import get_db_engine, init_db, Player, GameSession
 from sqlalchemy.orm import sessionmaker
+from api_key import api_key
 
 console = Console()
 
-api_key = "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"
 openai.api_key= api_key
 
 def get_play_suggestion(state: dict) -> str:

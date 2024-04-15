@@ -1,10 +1,6 @@
 import os
 import random
 import openai
-<<<<<<< HEAD
-import os
-=======
->>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
 import pygame
 from typing import List, Dict
 from rich.console import Console
@@ -27,11 +23,7 @@ def get_play_suggestion(state: dict) -> str:
     """Get play suggestion from GPT-3."""
     prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
     response = openai.Completion.create(
-<<<<<<< HEAD
-        model="davinci-002",
-=======
         model="gpt-3.5-turbo-instruct",  
->>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
         prompt=prompt_text,
         temperature=0.1,
         max_tokens=50

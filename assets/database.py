@@ -9,9 +9,10 @@ class Player(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    money_bag = Column(Integer, default=100)
     
     def __repr__(self):
-        return f"<Player(id={self.id}, name='{self.name}')>"
+        return f"<Player(id={self.id}, name='{self.name}', money_bag ='{self.money_bag}')>"
 
 class GameSession(Base):
     __tablename__ = 'game_sessions'

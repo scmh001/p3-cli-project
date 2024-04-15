@@ -76,6 +76,22 @@ def get_or_create_player(session, name):
         session.add(player)
         session.commit()
     return player
+ 
+def get_player_money_bag(session, player_id);
+    """Retrieves the current money bag value for a specific player."""
+    player = session.query(Player).filter_by(id=player_id).first()
+    if player:
+        return player.money_bag
+    return None
+
+def write_player_money_bag(session, player_id, new_amount):
+    """Updates the money bag value for a specific player."""
+    player = session.query(Player).filter_by(id=player_id).first()
+    if player:
+        player.money_bag = new_amount
+        session.commit()
+    else:
+        raise Exception("Player not found")
 
 def record_game_session(session, player_id, dealer_hand, player_hand, outcome):
     """Records the outcome of a game session."""

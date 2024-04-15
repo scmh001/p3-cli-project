@@ -1,6 +1,9 @@
 from prompt_toolkit import prompt
+from rich.console import Console
 
-def place_bets(max_bet, player_id, 
+console = Console
+
+def place_bets(session, max_bet, player_id, 
                function_one, function_two):
     while True:
         try:
@@ -19,3 +22,58 @@ def place_bets(max_bet, player_id,
             return bet
         except ValueError:
             print("Invalid input. Please enter a numerical value.")
+            
+def table_bets(session, player_id, money_bag, get_player_money_bag, update_player_money_bag):
+
+    if 1 <= money_bag <=250:
+        max_bet = 20
+        current_money_bag = get_player_money_bag(player_id)
+        console.print(f"You currently have ${money_bag}.")
+        user_input = prompt(f"Place a bet less than or equal to ${max_bet}.").strip()
+        new_amount = current_money_bag - user_input
+        update_player_money_bag(session, player_id, new_amount)
+    
+    elif 251 <= money_bag <=500:
+        max_bet = 50
+        current_money_bag = get_player_money_bag(player_id)
+        console.print(f"You currently have ${money_bag}.")
+        user_input = prompt(f"Place a bet less than or equal to ${max_bet}.").strip()
+        new_amount = current_money_bag - user_input
+        update_player_money_bag(session, player_id, new_amount)
+        
+    elif 501 <= money_bag <=1000:
+        max_bet = 100
+        current_money_bag = get_player_money_bag(player_id)
+        console.print(f"You currently have ${money_bag}.")
+        user_input = prompt(f"Place a bet less than or equal to ${max_bet}.").strip()
+        new_amount = current_money_bag - user_input
+        update_player_money_bag(session, player_id, new_amount)
+        
+    elif 1001 <= money_bag <=5000:
+        max_bet = 250
+        current_money_bag = get_player_money_bag(player_id)
+        console.print(f"You currently have ${money_bag}.")
+        user_input = prompt(f"Place a bet less than or equal to ${max_bet}.").strip()
+        new_amount = current_money_bag - user_input
+        update_player_money_bag(session, player_id, new_amount)
+        
+    elif 5001 <= money_bag <=10000:
+        max_bet = 500
+        current_money_bag = get_player_money_bag(player_id)
+        console.print(f"You currently have ${money_bag}.")
+        user_input = prompt(f"Place a bet less than or equal to ${max_bet}.").strip()
+        new_amount = current_money_bag - user_input
+        update_player_money_bag(session, player_id, new_amount)
+        
+    elif 10001 < money_bag:
+        max_bet = 1000
+        current_money_bag = get_player_money_bag(player_id)
+        console.print(f"You currently have ${money_bag}.")
+        user_input = prompt(f"Place a bet less than or equal to ${max_bet}.").strip()
+        new_amount = current_money_bag - user_input
+        update_player_money_bag(session, player_id, new_amount)
+        
+        
+        
+        
+        

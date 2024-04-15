@@ -77,14 +77,14 @@ def get_or_create_player(session, name):
         session.commit()
     return player
  
-def get_player_money_bag(session, player_id);
+def get_player_money_bag(session, player_id):
     """Retrieves the current money bag value for a specific player."""
     player = session.query(Player).filter_by(id=player_id).first()
     if player:
         return player.money_bag
     return None
 
-def write_player_money_bag(session, player_id, new_amount):
+def update_player_money_bag(session, player_id, new_amount):
     """Updates the money bag value for a specific player."""
     player = session.query(Player).filter_by(id=player_id).first()
     if player:

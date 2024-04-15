@@ -1,7 +1,8 @@
-import random
-import openai
 import os
-import pygame
+import random
+# import openai
+import os
+# import pygame
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -17,41 +18,20 @@ console = Console()
 
 openai.api_key= api_key
 
-def get_play_suggestion(state: dict) -> str:
-    """Get play suggestion from GPT-3."""
-    prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
-    response = openai.Completion.create(
-        model="davinci-002",
-        prompt=prompt_text,
-        temperature=0.1,
-        max_tokens=50
-    )
-    suggestion = response.choices[0].text.strip()
-    return suggestion
-
-def play_sound(file_path: str):
-    pygame.mixer.init()
-    pygame.mixer.music.load(file_path)
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy():
-        pygame.time.Clock().tick(10)
+# def get_play_suggestion(state: dict) -> str:
+#     """Get play suggestion from GPT-3."""
+#     prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
+#     response = openai.Completion.create(
+#         model="davinci-002",
+#         prompt=prompt_text,
+#         temperature=0.1,
+#         max_tokens=50
+#     )
+#     suggestion = response.choices[0].text.strip()
+#     return suggestion
 
 
-def play_card_draw_sound():
-    """Plays the sound effect for drawing a card."""
-    play_sound("cardsounds/card-sounds-35956.wav")
 
-def play_shuffle_sound():
-    """Plays the sound effect for shuffling the deck."""
-    play_sound("cardsounds/shuffle-cards-46455.wav")
-    
-def play_win_sound():
-    """Plays a victory sound"""
-    play_sound("cardsounds/success-1-6297.wav")
-    
-def play_loss_sound():
-    """Plays a loss buzzer"""
-    play_sound("cardsounds/wrong-buzzer-6268.wav")
     
 def create_deck() -> List[Dict[str, str]]:
     """Creates a deck of 52 cards."""
@@ -59,13 +39,11 @@ def create_deck() -> List[Dict[str, str]]:
 
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
     """Shuffles the deck in place."""
-    play_shuffle_sound()
     random.shuffle(deck)
     
 
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
     """Deals a card from the deck."""
-    play_card_draw_sound()
     return deck.pop()
 
 def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
@@ -121,23 +99,18 @@ def get_user_input(prompt_text: str) -> str:
 def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
     """Displays the outcome of the game and returns it as a string."""
     if player_hand_value > 21:
-        play_loss_sound()
         console.print("Player busts! Dealer wins.")
         return "Loss"
     elif dealer_hand_value > 21:
-        play_win_sound()
         console.print("Dealer busts! Player wins.")
         return "Win"
     elif player_hand_value > dealer_hand_value:
-        play_win_sound()
         console.print("Player wins!")
         return "Win"
     elif player_hand_value < dealer_hand_value:
-        play_loss_sound()
         console.print("Dealer wins!")
         return "Loss"
     else:
-        play_loss_sound()
         console.print("It's a tie!")
         return "Tie"
 

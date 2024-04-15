@@ -2,6 +2,7 @@ import os
 import random
 import openai
 import pygame
+from betting import table_bets, place_bets
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -131,10 +132,14 @@ def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
         console.print("It's a tie!")
         return "Tie"
 
-def play_game(session) -> None:
+def play_game(session, player) -> None:
     """Handles the game logic for a single game of blackjack."""
     os.system("clear")
     deck = create_deck()
+    current_money = get_player_money_bag(player.id)
+    
+    table_bets(session, player.id, current_money, get_player_money_bag, update_player_money_bag)
+        
     shuffle_deck(deck)
 
     player_hand = [deal_card(deck), deal_card(deck)]

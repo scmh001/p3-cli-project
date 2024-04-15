@@ -27,38 +27,32 @@ def table_bets(session, player_id, money_bag, get_player_money_bag, update_playe
 
     if 1 <= money_bag <=250:
         max_bet = 20
-        current_money_bag = get_player_money_bag(player_id)
-        console.print(f"You currently have ${current_money_bag}.")
+        print(f"You currently have ${money_bag}.")
         place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
     
     elif 251 <= money_bag <=500:
         max_bet = 50
-        current_money_bag = get_player_money_bag(player_id)
-        console.print(f"You currently have ${current_money_bag}.")
+        print(f"You currently have ${money_bag}.")
         place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
         
     elif 501 <= money_bag <=1000:
         max_bet = 100
-        current_money_bag = get_player_money_bag(player_id)
-        console.print(f"You currently have ${current_money_bag}.")
+        print(f"You currently have ${money_bag}.")
         place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
         
     elif 1001 <= money_bag <=5000:
         max_bet = 250
-        current_money_bag = get_player_money_bag(player_id)
-        console.print(f"You currently have ${current_money_bag}.")
+        print(f"You currently have ${money_bag}.")
         place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
         
     elif 5001 <= money_bag <=10000:
         max_bet = 500
-        current_money_bag = get_player_money_bag(player_id)
-        console.print(f"You currently have ${current_money_bag}.")
+        print(f"You currently have ${money_bag}.")
         place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
         
     elif 10001 < money_bag:
         max_bet = 1000
-        current_money_bag = get_player_money_bag(player_id)
-        console.print(f"You currently have ${current_money_bag}.")
+        print(f"You currently have ${money_bag}.")
         place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
         
         

@@ -136,9 +136,10 @@ def play_game(session, player) -> None:
     """Handles the game logic for a single game of blackjack."""
     os.system("clear")
     deck = create_deck()
-    current_money = get_player_money_bag(player.id)
+    player_id = player.id
+    current_money = get_player_money_bag(session, player_id)
     
-    table_bets(session, player.id, current_money, get_player_money_bag, update_player_money_bag)
+    table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
         
     shuffle_deck(deck)
 
@@ -182,7 +183,7 @@ def blackjack_game(session) -> None:
         player_name = get_user_input("Please enter your player name: ")
         player = get_or_create_player(session, player_name)
         
-        dealer_hand, player_hand, outcome = play_game(session)
+        dealer_hand, player_hand, outcome = play_game(session, player)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
         
         play_again = get_user_input("Do you want to play again? (yes/no): ")

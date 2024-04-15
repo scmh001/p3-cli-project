@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import os
 import random
 import openai
+=======
+import random
+import openai
+import os
+>>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
 import pygame
 from typing import List, Dict
 from rich.console import Console
@@ -11,6 +17,7 @@ from instructions import header, instructions
 from config import SUITS, RANKS, VALUES
 from database import get_db_engine, init_db, Player, GameSession
 from sqlalchemy.orm import sessionmaker
+<<<<<<< HEAD
 from dotenv import load_dotenv
 
 # load_dotenv()
@@ -49,6 +56,38 @@ def play_card_draw_sound():
     """Plays the sound effect for drawing a card."""
     play_sound("cardsounds/card-sounds-35956.wav")
 
+=======
+from api_key import api_key
+
+console = Console()
+
+openai.api_key= api_key
+
+def get_play_suggestion(state: dict) -> str:
+    """Get play suggestion from GPT-3."""
+    prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
+    response = openai.Completion.create(
+        model="davinci-002",
+        prompt=prompt_text,
+        temperature=0.1,
+        max_tokens=50
+    )
+    suggestion = response.choices[0].text.strip()
+    return suggestion
+
+def play_sound(file_path: str):
+    pygame.mixer.init()
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        pygame.time.Clock().tick(10)
+
+
+def play_card_draw_sound():
+    """Plays the sound effect for drawing a card."""
+    play_sound("cardsounds/card-sounds-35956.wav")
+
+>>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
 def play_shuffle_sound():
     """Plays the sound effect for shuffling the deck."""
     play_sound("cardsounds/shuffle-cards-46455.wav")
@@ -233,7 +272,10 @@ def view_game_outcomes(session) -> None:
 
 def main() -> None:
     """Main function to handle database setup and start the game."""
+<<<<<<< HEAD
     configure()
+=======
+>>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
     db_url = "sqlite:///blackjack.db"
     engine = get_db_engine(db_url)
     init_db(engine)

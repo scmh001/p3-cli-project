@@ -10,3 +10,4 @@ blackjack.db
 *.sqlite3
 # assets/api_key.py
 assets/__pycache__
+api_key.env

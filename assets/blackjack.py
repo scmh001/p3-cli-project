@@ -2,6 +2,7 @@ import os
 import random
 import openai
 import pygame
+from betting import table_bets, place_bets
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -94,6 +95,22 @@ def get_or_create_player(session, name):
         session.add(player)
         session.commit()
     return player
+ 
+def get_player_money_bag(session, player_id):
+    """Retrieves the current money bag value for a specific player."""
+    player = session.query(Player).filter_by(id=player_id).first()
+    if player:
+        return player.money_bag
+    return None
+
+def update_player_money_bag(session, player_id, new_amount):
+    """Updates the money bag value for a specific player."""
+    player = session.query(Player).filter_by(id=player_id).first()
+    if player:
+        player.money_bag = new_amount
+        session.commit()
+    else:
+        raise Exception("Player not found")
 
 def record_game_session(session, player_id, dealer_hand, player_hand, outcome):
     """Records the outcome of a game session."""
@@ -133,10 +150,15 @@ def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
         console.print("It's a tie!")
         return "Tie"
 
-def play_game(session) -> None:
+def play_game(session, player) -> None:
     """Handles the game logic for a single game of blackjack."""
     os.system("clear")
     deck = create_deck()
+    player_id = player.id
+    current_money = get_player_money_bag(session, player_id)
+    
+    table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
+        
     shuffle_deck(deck)
 
     player_hand = [deal_card(deck), deal_card(deck)]
@@ -179,7 +201,7 @@ def blackjack_game(session) -> None:
         player_name = get_user_input("Please enter your player name: ")
         player = get_or_create_player(session, player_name)
         
-        dealer_hand, player_hand, outcome = play_game(session)
+        dealer_hand, player_hand, outcome = play_game(session, player)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
         
         play_again = get_user_input("Do you want to play again? (yes/no): ")

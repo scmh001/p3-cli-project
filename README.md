@@ -10,6 +10,9 @@ To start type command below in user-terminal; type play; enter player name; begi
 Follow the on-screen prompts to enter your **player** name and **play** the game. You can choose to **hit** or **stand** on your turn. The game will display the outcome (win, loss, or tie) after each round.
 To view past game outcomes, enter **'view'** at the main menu. To quit the game, enter **'quit'**.
 
+Use openai version 0.27
+>pip install openai==0.27
+
 
 ## ⚙️ Technologies / Libraries Include:
 1. Python: The core language used for development.
@@ -19,6 +22,8 @@ To view past game outcomes, enter **'view'** at the main menu. To quit the game,
 5. SQLAlchemy: Manages database interactions.
 6. Argparse: Adds helpful command-line options.
 7. Pygame: Audio mixer usage.
+8. OpenAI: Powerful AI text generation ( GPT-3.5 )
+9. Typing: Type hints for Python
 
 
 ## 🎲 Deliverables: 
@@ -42,14 +47,14 @@ To view past game outcomes, enter **'view'** at the main menu. To quit the game,
 ## 🌟 Stretch Deliverables: 
 > (Future Enhancements):
 * Implement multiplayer functionality (computer)
-* ai implementation (multiple players)
-* Special effect on winning(21)
+* ai implementation (help suggestions)
+* Special effect on winning (21)
 * Add special effects and audio for winning hands
 * Support multiple decks
 * Implement resume game feature
 * Visual representation of cards
 * Enhance ASCII art card representations
-* Migrate to SQLAlchemy
+* Migrate to SQLAlchemy for database management.
 
 ## Database Schema
 >Database Schema

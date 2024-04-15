@@ -12,8 +12,4 @@ blackjack.db
 .env
 assets/.env
 assets/api_key.py
-<<<<<<< HEAD
 assets/__pycache__
-=======
-assets/__pycache__
->>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b

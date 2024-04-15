@@ -56,16 +56,34 @@ def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
         aces -= 1
     return value
 
-def display_hand(hand: List[Dict[str, str]], player: str) -> None:
+def display_hand(hand: List[Dict[str, str]], player: str, hide_dealer_card: bool = False, calculate_value: bool = True) -> None:
     """Displays a player's hand with the name of each card above its ASCII art."""
     console.print(f"{player}'s hand:")
+    card_names = []
+    ascii_arts = []
+    for i, card in enumerate(hand):
+        if hide_dealer_card and player == "Dealer" and i == 1:
+            card_name = "Hidden"
+            ascii_art = deck_of_cards["Card Back"].split("\n")
+        else:
+            card_name = f"{card['rank']} of {card['suit']}"
+            ascii_art = deck_of_cards.get(card_name, "Card not found").split("\n")
+        card_names.append(card_name)
+        ascii_arts.append(ascii_art)
 
-    for card in hand:
-        card_name = f"{card['rank']} of {card['suit']}"
-        ascii_art = deck_of_cards.get(card_name, "Card not found")
-        console.print(card_name)
-        console.print(ascii_art)
-        
+    max_height = max(len(art) for art in ascii_arts)
+
+    for i in range(len(card_names)):
+        console.print(card_names[i].center(len(ascii_arts[i])))
+
+    for row in range(max_height):
+        for i in range(len(ascii_arts)):
+            if row < len(ascii_arts[i]):
+                console.print(ascii_arts[i][row], end=" ")
+            else:
+                console.print(" " * len(ascii_arts[i]), end=" ")
+        console.print()
+
     console.print(f"Value: {calculate_hand_value(hand)}\n")
 
 def get_or_create_player(session, name):
@@ -124,8 +142,9 @@ def play_game(session) -> None:
     player_hand = [deal_card(deck), deal_card(deck)]
     dealer_hand = [deal_card(deck), deal_card(deck)]
 
+    display_hand(dealer_hand, "Dealer", hide_dealer_card=True, calculate_value=False)
     display_hand(player_hand, "Player")
-    display_hand(dealer_hand, "Dealer")
+    
 
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit, stand or get help? ")
@@ -141,12 +160,15 @@ def play_game(session) -> None:
             console.print("Suggested play:", style="bold green")
             console.print(suggestion)
             continue
+        
+        console.print("Revealing Dealer's Hand...")
+        display_hand(dealer_hand, "Dealer", calculate_value=True)
 
     player_hand_value = calculate_hand_value(player_hand)
 
     while calculate_hand_value(dealer_hand) < 17:
         dealer_hand.append(deal_card(deck))
-    display_hand(dealer_hand, "Dealer")
+    # display_hand(dealer_hand, "Dealer")
 
     dealer_hand_value = calculate_hand_value(dealer_hand)
 

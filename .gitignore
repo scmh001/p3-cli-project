@@ -9,6 +9,7 @@ blackjack.db
 *.db
 *.sqlite3
 *.env
+.env
 assets/.env
 assets/api_key.py
 assets/__pycache__

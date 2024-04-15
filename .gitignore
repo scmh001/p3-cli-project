@@ -8,5 +8,5 @@ blackjack.db
 *.pyc
 *.db
 *.sqlite3
-assets/api_key.py
+# assets/api_key.py
 assets/__pycache__

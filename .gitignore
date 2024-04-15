@@ -1,0 +1,12 @@
+# created by virtualenv automatically
+#Ignore database
+assets/blackjack.db
+    
+blackjack.db
+#Ignore virtual Environment
+.venv/
+*.pyc
+*.db
+*.sqlite3
+assets/api_key.py
+assets/__pycache__

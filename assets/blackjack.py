@@ -69,19 +69,19 @@ def display_hand(hand: List[Dict[str, str]], player: str) -> None:
         ascii_arts.append((card_name, ascii_art))
         
     max_height = max(len(ascii_art.splitlines()) for _, ascii_art in ascii_arts)
+    max_width = max(len(line) for _, ascii_art in ascii_arts for line in ascii_art.splitlines())
+
     
     for i in range(max_height):
         for card_name, ascii_art in ascii_arts:
             lines = ascii_art.splitlines()
+            padding = ' ' * (max_width - len(lines[i]) + 2) 
             if i < len(lines):
-                # padding = ' ' * (len(lines[0]) - len(lines[i]))
-                """Display lines of ASCII art"""
+                padding = ' ' * (len(lines[0]) - len(lines[i]))
                 console.print(lines[i], end='  ')  
             else:
-                """Pad with spaces if there is no card to maintain alignment"""
-                # console.print(' ' * len(lines[0]), end=' ' * len(padding) + '  ')
-                console.print(' ' * len(lines[0]), end = ' ')
-        console.print() 
+                console.print(' ' * max_width, end='  ')
+        console.print()
         
     console.print(" ".join(card_name for card_name, _ in ascii_arts))
     console.print(f"Value: {calculate_hand_value(hand)}\n")

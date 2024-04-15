@@ -1,8 +1,4 @@
 import random
-import os
-import pyaudio
-import wave
-# from playsound import playsound
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -15,56 +11,16 @@ from sqlalchemy.orm import sessionmaker
 
 console = Console()
 
-def play_sound(file_path: str):
-    chunk = 128
-    wf = wave.open(file_path, 'rb')
-    p = pyaudio.PyAudio()
-    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                    channels=wf.getnchannels(),
-                    rate=wf.getframerate(),
-                    output=True)
-    data = wf.readframes(chunk)
-    while data:
-        stream.write(data)
-        data = wf.readframes(chunk)
-        
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-
-    
-
-
-
-def play_card_draw_sound():
-    """Plays the sound effect for drawing a card."""
-    play_sound("cardsounds.py/card-sounds-35956.wav")
-
-def play_shuffle_sound():
-    """Plays the sound effect for shuffling the deck."""
-    play_sound("cardsounds.py/shuffle-cards-46455.wav")
-    
-def play_win_sound():
-    """Plays a victory sound"""
-    play_sound("cardsounds.py/success-1-6297.wav")
-    
-def play_loss_sound():
-    """Plays a loss buzzer"""
-    play_sound("cardsounds.py/wrong-buzzer-6268.wav")
-    
 def create_deck() -> List[Dict[str, str]]:
     """Creates a deck of 52 cards."""
     return [{'suit': suit, 'rank': rank} for suit in SUITS for rank in RANKS]
 
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
     """Shuffles the deck in place."""
-    play_shuffle_sound()
     random.shuffle(deck)
-    
 
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
     """Deals a card from the deck."""
-    play_card_draw_sound()
     return deck.pop()
 
 def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
@@ -120,29 +76,23 @@ def get_user_input(prompt_text: str) -> str:
 def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
     """Displays the outcome of the game and returns it as a string."""
     if player_hand_value > 21:
-        play_loss_sound()
         console.print("Player busts! Dealer wins.")
         return "Loss"
     elif dealer_hand_value > 21:
-        play_win_sound()
         console.print("Dealer busts! Player wins.")
         return "Win"
     elif player_hand_value > dealer_hand_value:
-        play_win_sound()
         console.print("Player wins!")
         return "Win"
     elif player_hand_value < dealer_hand_value:
-        play_loss_sound()
         console.print("Dealer wins!")
         return "Loss"
     else:
-        play_loss_sound()
         console.print("It's a tie!")
         return "Tie"
 
 def play_game(session) -> None:
     """Handles the game logic for a single game of blackjack."""
-    os.system("clear")
     deck = create_deck()
     shuffle_deck(deck)
 
@@ -155,10 +105,8 @@ def play_game(session) -> None:
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit or stand? ")
         if action == "hit":
-            os.system("clear")
             player_hand.append(deal_card(deck))
             display_hand(player_hand, "Player")
-            display_hand(dealer_hand, "Dealer")
         elif action == "stand":
             break
 
@@ -180,7 +128,7 @@ def blackjack_game(session) -> None:
     while True:
         player_name = get_user_input("Please enter your player name: ")
         player = get_or_create_player(session, player_name)
-        
+
         dealer_hand, player_hand, outcome = play_game(session)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
         

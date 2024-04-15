@@ -1,8 +1,6 @@
 import random
 import os
-import pyaudio
-import wave
-# from playsound import playsound
+import pygame
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -16,41 +14,28 @@ from sqlalchemy.orm import sessionmaker
 console = Console()
 
 def play_sound(file_path: str):
-    chunk = 128
-    wf = wave.open(file_path, 'rb')
-    p = pyaudio.PyAudio()
-    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                    channels=wf.getnchannels(),
-                    rate=wf.getframerate(),
-                    output=True)
-    data = wf.readframes(chunk)
-    while data:
-        stream.write(data)
-        data = wf.readframes(chunk)
-        
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+    pygame.mixer.init()
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        pygame.time.Clock().tick(10)
 
+
+def play_card_draw_sound():
+    """Plays the sound effect for drawing a card."""
+    play_sound("cardsounds/card-sounds-35956.wav")
+
+def play_shuffle_sound():
+    """Plays the sound effect for shuffling the deck."""
+    play_sound("cardsounds/shuffle-cards-46455.wav")
     
-
-
-
-# def play_card_draw_sound():
-#     """Plays the sound effect for drawing a card."""
-#     play_sound("cardsounds/card-sounds-35956.wav")
-
-# def play_shuffle_sound():
-#     """Plays the sound effect for shuffling the deck."""
-#     play_sound("cardsounds/shuffle-cards-46455.wav")
+def play_win_sound():
+    """Plays a victory sound"""
+    play_sound("cardsounds/success-1-6297.wav")
     
-# def play_win_sound():
-#     """Plays a victory sound"""
-#     play_sound("cardsounds/success-1-6297.wav")
-    
-# def play_loss_sound():
-#     """Plays a loss buzzer"""
-#     play_sound("cardsounds/wrong-buzzer-6268.wav")
+def play_loss_sound():
+    """Plays a loss buzzer"""
+    play_sound("cardsounds/wrong-buzzer-6268.wav")
     
 def create_deck() -> List[Dict[str, str]]:
     """Creates a deck of 52 cards."""

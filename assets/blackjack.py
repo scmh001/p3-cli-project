@@ -1,7 +1,10 @@
 import os
 import random
 import openai
+<<<<<<< HEAD
 import os
+=======
+>>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
 import pygame
 from typing import List, Dict
 from rich.console import Console
@@ -12,17 +15,23 @@ from instructions import header, instructions
 from config import SUITS, RANKS, VALUES
 from database import get_db_engine, init_db, Player, GameSession
 from sqlalchemy.orm import sessionmaker
-from api_key import api_key
+from dotenv import load_dotenv
 
 console = Console()
 
-openai.api_key= api_key
+def configure():
+    load_dotenv()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_play_suggestion(state: dict) -> str:
     """Get play suggestion from GPT-3."""
     prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
     response = openai.Completion.create(
+<<<<<<< HEAD
         model="davinci-002",
+=======
+        model="gpt-3.5-turbo-instruct",  
+>>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
         prompt=prompt_text,
         temperature=0.1,
         max_tokens=50
@@ -198,6 +207,7 @@ def view_game_outcomes(session) -> None:
 
 def main() -> None:
     """Main function to handle database setup and start the game."""
+    configure()
     db_url = "sqlite:///blackjack.db"
     engine = get_db_engine(db_url)
     init_db(engine)

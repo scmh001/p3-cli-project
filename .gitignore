@@ -8,6 +8,14 @@ blackjack.db
 *.pyc
 *.db
 *.sqlite3
+<<<<<<< HEAD
 # assets/api_key.py
 assets/__pycache__
 api_key.env
+=======
+*.env
+.env
+assets/.env
+assets/api_key.py
+assets/__pycache__
+>>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b

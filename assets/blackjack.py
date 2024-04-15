@@ -31,7 +31,7 @@ def get_play_suggestion(state: dict) -> str:
     suggestion = response.choices[0].text.strip()
     return suggestion
 
-
+##
 
     
 def create_deck() -> List[Dict[str, str]]:

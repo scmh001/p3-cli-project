@@ -1,7 +1,7 @@
 # created by virtualenv automatically
 #Ignore database
 assets/blackjack.db
-    
+
 blackjack.db
 #Ignore virtual Environment
 .venv/
@@ -11,9 +11,5 @@ blackjack.db
 *.env
 .env
 assets/.env
-assets/api_key.py
-<<<<<<< HEAD
-assets/__pycache__
-=======
-assets/__pycache__
->>>>>>> 2a601b1159b24de4d36278b2d07022298d4bc87b
+assets/apikey.py
+assets/_pycache

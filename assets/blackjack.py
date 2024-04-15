@@ -31,7 +31,7 @@ def get_play_suggestion(state: dict) -> str:
     suggestion = response.choices[0].text.strip()
     return suggestion
 
-##
+
 
     
 def create_deck() -> List[Dict[str, str]]:
@@ -59,13 +59,31 @@ def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
 def display_hand(hand: List[Dict[str, str]], player: str) -> None:
     """Displays a player's hand with the name of each card above its ASCII art."""
     console.print(f"{player}'s hand:")
+    
+    ascii_arts = []
+
 
     for card in hand:
         card_name = f"{card['rank']} of {card['suit']}"
         ascii_art = deck_of_cards.get(card_name, "Card not found")
-        console.print(card_name)
-        console.print(ascii_art)
+        ascii_arts.append((card_name, ascii_art))
         
+    max_height = max(len(ascii_art.splitlines()) for _, ascii_art in ascii_arts)
+    
+    for i in range(max_height):
+        for card_name, ascii_art in ascii_arts:
+            lines = ascii_art.splitlines()
+            if i < len(lines):
+                # padding = ' ' * (len(lines[0]) - len(lines[i]))
+                """Display lines of ASCII art"""
+                console.print(lines[i], end='  ')  
+            else:
+                """Pad with spaces if there is no card to maintain alignment"""
+                # console.print(' ' * len(lines[0]), end=' ' * len(padding) + '  ')
+                console.print(' ' * len(lines[0]), end = ' ')
+        console.print() 
+        
+    console.print(" ".join(card_name for card_name, _ in ascii_arts))
     console.print(f"Value: {calculate_hand_value(hand)}\n")
 
 def get_or_create_player(session, name):

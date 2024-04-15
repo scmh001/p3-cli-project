@@ -36,21 +36,21 @@ def play_sound(file_path: str):
 
 
 
-def play_card_draw_sound():
-    """Plays the sound effect for drawing a card."""
-    play_sound("cardsounds.py/card-sounds-35956.wav")
+# def play_card_draw_sound():
+#     """Plays the sound effect for drawing a card."""
+#     play_sound("cardsounds/card-sounds-35956.wav")
 
-def play_shuffle_sound():
-    """Plays the sound effect for shuffling the deck."""
-    play_sound("cardsounds.py/shuffle-cards-46455.wav")
+# def play_shuffle_sound():
+#     """Plays the sound effect for shuffling the deck."""
+#     play_sound("cardsounds/shuffle-cards-46455.wav")
     
-def play_win_sound():
-    """Plays a victory sound"""
-    play_sound("cardsounds.py/success-1-6297.wav")
+# def play_win_sound():
+#     """Plays a victory sound"""
+#     play_sound("cardsounds/success-1-6297.wav")
     
-def play_loss_sound():
-    """Plays a loss buzzer"""
-    play_sound("cardsounds.py/wrong-buzzer-6268.wav")
+# def play_loss_sound():
+#     """Plays a loss buzzer"""
+#     play_sound("cardsounds/wrong-buzzer-6268.wav")
     
 def create_deck() -> List[Dict[str, str]]:
     """Creates a deck of 52 cards."""
@@ -58,13 +58,13 @@ def create_deck() -> List[Dict[str, str]]:
 
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
     """Shuffles the deck in place."""
-    play_shuffle_sound()
+    # play_shuffle_sound()
     random.shuffle(deck)
     
 
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
     """Deals a card from the deck."""
-    play_card_draw_sound()
+    # play_card_draw_sound()
     return deck.pop()
 
 def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
@@ -120,23 +120,23 @@ def get_user_input(prompt_text: str) -> str:
 def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
     """Displays the outcome of the game and returns it as a string."""
     if player_hand_value > 21:
-        play_loss_sound()
+        # play_loss_sound()
         console.print("Player busts! Dealer wins.")
         return "Loss"
     elif dealer_hand_value > 21:
-        play_win_sound()
+        # play_win_sound()
         console.print("Dealer busts! Player wins.")
         return "Win"
     elif player_hand_value > dealer_hand_value:
-        play_win_sound()
+        # play_win_sound()
         console.print("Player wins!")
         return "Win"
     elif player_hand_value < dealer_hand_value:
-        play_loss_sound()
+        # play_loss_sound()
         console.print("Dealer wins!")
         return "Loss"
     else:
-        play_loss_sound()
+        # play_loss_sound()
         console.print("It's a tie!")
         return "Tie"
 

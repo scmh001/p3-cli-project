@@ -8,3 +8,5 @@ jack.db
 .venv/
 
 *.pyc
+*.db
+*.sqlite3

@@ -11,7 +11,6 @@ from instructions import header, instructions
 from config import SUITS, RANKS, VALUES
 from database import get_db_engine, init_db, Player, GameSession
 from sqlalchemy.orm import sessionmaker
-from api_key import api_key
 from dotenv import load_dotenv
 
 load_dotenv()

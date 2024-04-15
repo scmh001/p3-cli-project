@@ -1,6 +1,6 @@
 import os
 import random
-import openai
+# import openai
 import os
 # import pygame
 from typing import List, Dict
@@ -18,17 +18,17 @@ console = Console()
 
 openai.api_key= api_key
 
-def get_play_suggestion(state: dict) -> str:
-    """Get play suggestion from GPT-3."""
-    prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
-    response = openai.Completion.create(
-        model="davinci-002",
-        prompt=prompt_text,
-        temperature=0.1,
-        max_tokens=50
-    )
-    suggestion = response.choices[0].text.strip()
-    return suggestion
+# def get_play_suggestion(state: dict) -> str:
+#     """Get play suggestion from GPT-3."""
+#     prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
+#     response = openai.Completion.create(
+#         model="davinci-002",
+#         prompt=prompt_text,
+#         temperature=0.1,
+#         max_tokens=50
+#     )
+#     suggestion = response.choices[0].text.strip()
+#     return suggestion
 
 
 

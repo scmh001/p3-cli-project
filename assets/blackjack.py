@@ -43,13 +43,13 @@ def create_deck() -> List[Dict[str, str]]:
 
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
     """Shuffles the deck in place."""
-    # play_shuffle_sound()
+    play_shuffle_sound()
     random.shuffle(deck)
     
 
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
     """Deals a card from the deck."""
-    # play_card_draw_sound()
+    play_card_draw_sound()
     return deck.pop()
 
 def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
@@ -105,23 +105,23 @@ def get_user_input(prompt_text: str) -> str:
 def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
     """Displays the outcome of the game and returns it as a string."""
     if player_hand_value > 21:
-        # play_loss_sound()
+        play_loss_sound()
         console.print("Player busts! Dealer wins.")
         return "Loss"
     elif dealer_hand_value > 21:
-        # play_win_sound()
+        play_win_sound()
         console.print("Dealer busts! Player wins.")
         return "Win"
     elif player_hand_value > dealer_hand_value:
-        # play_win_sound()
+        play_win_sound()
         console.print("Player wins!")
         return "Win"
     elif player_hand_value < dealer_hand_value:
-        # play_loss_sound()
+        play_loss_sound()
         console.print("Dealer wins!")
         return "Loss"
     else:
-        # play_loss_sound()
+        play_loss_sound()
         console.print("It's a tie!")
         return "Tie"
 

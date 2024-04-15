@@ -1,4 +1,5 @@
 import random
+import openai
 import os
 import pygame
 from typing import List, Dict
@@ -12,6 +13,21 @@ from database import get_db_engine, init_db, Player, GameSession
 from sqlalchemy.orm import sessionmaker
 
 console = Console()
+
+api_key = "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"
+openai.api_key= api_key
+
+def get_play_suggestion(state: dict) -> str:
+    """Get play suggestion from GPT-3."""
+    prompt_text = f"Given the current game state:\nPlayer hand: {state['player_hand']}\nDealer hand: {state['dealer_hand']}\nShould I hit or stand?"
+    response = openai.Completion.create(
+        model="davinci-002",
+        prompt=prompt_text,
+        temperature=0.1,
+        max_tokens=50
+    )
+    suggestion = response.choices[0].text.strip()
+    return suggestion
 
 def play_sound(file_path: str):
     pygame.mixer.init()
@@ -138,7 +154,7 @@ def play_game(session) -> None:
     display_hand(dealer_hand, "Dealer")
 
     while calculate_hand_value(player_hand) < 21:
-        action = get_user_input("Do you want to hit or stand? ")
+        action = get_user_input("Do you want to hit, stand or get help? ")
         if action == "hit":
             os.system("clear")
             player_hand.append(deal_card(deck))
@@ -146,6 +162,11 @@ def play_game(session) -> None:
             display_hand(dealer_hand, "Dealer")
         elif action == "stand":
             break
+        elif action == "help":
+            suggestion = get_play_suggestion({"player_hand": player_hand, "dealer_hand": dealer_hand})
+            console.print("Suggested play:", style="bold green")
+            console.print(suggestion)
+            continue
 
     player_hand_value = calculate_hand_value(player_hand)
 

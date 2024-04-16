@@ -1,7 +1,7 @@
 import os
 import random
 import openai
-
+import pygame
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -15,6 +15,29 @@ from models import (GameSession, Player, get_db_engine, init_db)
 from dotenv import load_dotenv
 
 console = Console()
+
+def play_sound(file_path: str):
+    pygame.mixer.init()
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        pygame.time.Clock().tick(10)
+        
+def play_card_draw_sound():
+    """Plays the sound effect for drawing a card."""
+    play_sound("cardsounds/card-sounds-35956.wav")
+
+def play_shuffle_sound():
+    """Plays the sound effect for shuffling the deck."""
+    play_sound("cardsounds/shuffle-cards-46455.wav")
+    
+def play_win_sound():
+    """Plays a victory sound"""
+    play_sound("cardsounds/success-1-6297.wav")
+    
+def play_loss_sound():
+    """Plays a loss buzzer"""
+    play_sound("cardsounds/wrong-buzzer-6268.wav")
 
 # Configure environment variables and OpenAI API key
 def configure() -> None:
@@ -65,6 +88,7 @@ def create_deck() -> List[Dict[str, str]]:
 
 # Shuffle the deck of cards
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
+    play_shuffle_sound()
     """
     Shuffle the given deck of cards in-place using the Fisher-Yates shuffle algorithm.
     
@@ -75,6 +99,7 @@ def shuffle_deck(deck: List[Dict[str, str]]) -> None:
 
 # Deal a card from the deck
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
+    play_card_draw_sound()
     """
     Deal a single card from the top of the deck.
     
@@ -312,23 +337,28 @@ def play_game(session, player: Player) -> None:
     
     # Determine winner
     if player_hand_value > 21:
+        play_loss_sound()
         console.print("Player busts! Dealer wins.")
         outcome = "Loss"
     elif dealer_hand_value > 21:
+        play_win_sound()
         console.print("Dealer busts! Player wins.")
         new_amount = get_player_money_bag(session, player_id) + (2 * bet)
         update_player_money_bag(session, player_id, new_amount)
         outcome = "Win"     
     elif player_hand_value > dealer_hand_value:
+        play_win_sound()
         new_amount = get_player_money_bag(session, player_id) + (2 * bet)
         update_player_money_bag(session, player_id, new_amount)
         console.print("Player wins!")
         outcome = "Win"
     elif player_hand_value < dealer_hand_value:
+        play_loss_sound()
         console.print("Dealer wins!")
         outcome = "Loss"
     else:
         console.print("It's a tie!")
+        play_loss_sound()
         new_amount = get_player_money_bag(session, player_id) + (bet)
         update_player_money_bag(session, player_id, new_amount)
         outcome = "Tie"

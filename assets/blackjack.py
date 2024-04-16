@@ -16,6 +16,8 @@ from dotenv import load_dotenv
 
 console = Console()
 
+"""get_busy function returns 'true' if sound is still playing when checked. Clock().tick(10) defines an amount of time
+to wait before checking if the sound has finished playing."""
 def play_sound(file_path: str):
     pygame.mixer.init()
     pygame.mixer.music.load(file_path)

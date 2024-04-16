@@ -144,13 +144,7 @@ def get_user_input(prompt_text: str) -> str:
         console.print("Invalid input. Please try again.", style="bold red")
 
 
-def computer_play(hand: List[Dict[str, str]], deck: List[Dict[str, str]]) -> List[Dict[str, str]]:
-    while calculate_hand_value(hand) < 17:
-        hand.append(deal_card(deck))
-    return hand
-
-
-def play_game(session, player: Player, num_computer_players: int) -> None:
+def play_game(session, player: Player) -> None:
     os.system("clear")
     deck = create_deck()
     player_id = player.id
@@ -167,12 +161,9 @@ def play_game(session, player: Player, num_computer_players: int) -> None:
 
     player_hand = [deal_card(deck), deal_card(deck)]
     dealer_hand = [deal_card(deck), deal_card(deck)]
-    computer_hands = [[deal_card(deck), deal_card(deck)] for _ in range(num_computer_players)]
 
     display_hand(dealer_hand, "Dealer", hide_dealer_card=True, calculate_value=False)
     display_hand(player_hand, "Player")
-    for i, hand in enumerate(computer_hands, 1):
-        display_hand(hand, f"Computer {i}")
     
     if calculate_hand_value(player_hand) == 21 and calculate_hand_value(dealer_hand) < 21:
         print(f"{header}")
@@ -197,14 +188,10 @@ def play_game(session, player: Player, num_computer_players: int) -> None:
             console.print("Suggested play:", style="bold green")
             console.print(suggestion)
 
-    for i, hand in enumerate(computer_hands, 1):
-        computer_hands[i-1] = computer_play(hand, deck)
-
     console.print("Revealing Dealer's Hand...")
     display_hand(dealer_hand, "Dealer", calculate_value=True)
 
     player_hand_value = calculate_hand_value(player_hand)
-    dealer_hand = computer_play(dealer_hand, deck)
     dealer_hand_value = calculate_hand_value(dealer_hand)
     
     if player_hand_value > 21:
@@ -237,11 +224,7 @@ def blackjack_game(session) -> None:
         player_name = get_user_input("Please enter your player name: ")
         player = get_or_create_player(session, player_name)
 
-        num_computer_players = 0
-        while num_computer_players not in [1, 2]:
-            num_computer_players = int(get_user_input("Enter number of computer opponents (1 or 2): "))
-
-        dealer_hand, player_hand, outcome = play_game(session, player, num_computer_players)
+        dealer_hand, player_hand, outcome = play_game(session, player)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
 
         play_again = get_user_input("Do you want to play again? (yes/no): ")

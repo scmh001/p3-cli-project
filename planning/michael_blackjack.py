@@ -88,14 +88,32 @@ def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
 def display_hand(hand: List[Dict[str, str]], player: str) -> None:
     """Displays a player's hand with the name of each card above its ASCII art."""
     console.print(f"{player}'s hand:")
+    
+    ascii_arts = []
+
 
     for card in hand:
         card_name = f"{card['rank']} of {card['suit']}"
         ascii_art = deck_of_cards.get(card_name, "Card not found")
-        console.print(card_name)
-        console.print(ascii_art)
+        ascii_arts.append((card_name, ascii_art))
         
+        
+    max_height = max(len(ascii_art.splitlines()) for _, ascii_art in ascii_arts)
+    
+    for i in range(max_height):
+        for card_name, ascii_art in ascii_arts:
+            lines = ascii_art.splitlines()
+            if i < len(lines):
+                console.print(lines[i], end='  ')  
+            else:
+                console.print(' ' * len(lines[0]), end='  ') 
+        console.print()  
+        
+    # console.print(f"Value: {calculate_hand_value(hand)}\n")
+    console.print(" ".join(card_name for card_name, _ in ascii_arts))
     console.print(f"Value: {calculate_hand_value(hand)}\n")
+
+
 
 def get_or_create_player(session, name):
     """Gets or creates a player by name."""

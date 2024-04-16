@@ -19,12 +19,26 @@ console = Console()
 
 # Configure environment variables and OpenAI API key
 def configure() -> None:
-    """Load enviroment variables and configure OpenAI key """
+    """
+    Load environment variables from .env file and configure OpenAI API key.
+    This function is called at the start of the program to set up the required
+    configuration before running the game.
+    """
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Get play suggestion from OpenAI based on game state 
 def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
+    """
+    Get a play suggestion from OpenAI's GPT-3.5-turbo model based on the current game state.
+    
+    Args:
+        state (Dict[str, List[Dict[str, str]]]): A dictionary representing the current game state,
+            including the player's hand and the dealer's hand.
+            
+    Returns:
+        str: The suggested play action (e.g., "hit" or "stand") based on the game state.
+    """
     prompt_text = (
         f"Given the current game state:\n"
         f"Player hand: {state['player_hand']}\n"
@@ -41,18 +55,49 @@ def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
 
 # Create a new deck of cards
 def create_deck() -> List[Dict[str, str]]:
+    """
+    Create a new standard deck of 52 playing cards.
+    
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries representing each card in the deck,
+            where each dictionary contains the 'suit' and 'rank' of the card.
+    """
     return [{"suit": suit, "rank": rank} for suit in SUITS for rank in RANKS]
 
 # Shuffle the deck of cards
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
+    """
+    Shuffle the given deck of cards in-place using the Fisher-Yates shuffle algorithm.
+    
+    Args:
+        deck (List[Dict[str, str]]): The deck of cards to be shuffled.
+    """
     random.shuffle(deck)
 
 # Deal a card from the deck
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
+    """
+    Deal a single card from the top of the deck.
+    
+    Args:
+        deck (List[Dict[str, str]]): The deck of cards to deal from.
+        
+    Returns:
+        Dict[str, str]: A dictionary representing the dealt card, containing its 'suit' and 'rank'.
+    """
     return deck.pop()
 
 # Calculate the value of a hand of cards
 def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
+    """
+    Calculate the total value of a hand of cards according to standard blackjack rules.
+    
+    Args:
+        hand (List[Dict[str, str]]): The hand of cards to calculate the value for.
+        
+    Returns:
+        int: The total value of the hand.
+    """
     value = sum(VALUES[card["rank"]] for card in hand)
     aces = sum(card["rank"] == "Ace" for card in hand)
     while value > 21 and aces:
@@ -67,6 +112,15 @@ def display_hand(
     hide_dealer_card: bool = False,
     calculate_value: bool = True,
 ) -> None:
+    """
+    Display a hand of cards using ASCII art and optionally calculate and display the hand's value.
+    
+    Args:
+        hand (List[Dict[str, str]]): The hand of cards to display.
+        player (str): The name of the player who holds the hand.
+        hide_dealer_card (bool, optional): Whether to hide the dealer's second card. Defaults to False.
+        calculate_value (bool, optional): Whether to calculate and display the hand's value. Defaults to True.
+    """
     console.print(f"[bold blue]{player}'s hand:[/bold blue]")
     card_names = []
     ascii_arts = []
@@ -98,6 +152,16 @@ def display_hand(
 
 # Get or create a player in the database
 def get_or_create_player(session, name: str) -> Player:
+    """
+    Retrieve a player from the database by name, or create a new player if not found.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        name (str): The name of the player to retrieve or create.
+        
+    Returns:
+        Player: The retrieved or newly created player object.
+    """
     player = session.query(Player).filter_by(name=name).first()
     if not player:
         player = Player(name=name)
@@ -107,11 +171,32 @@ def get_or_create_player(session, name: str) -> Player:
 
 # Get a player's money bag amount from the database
 def get_player_money_bag(session, player_id: int) -> int:
+    """
+    Retrieve the money bag amount for a player from the database.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player_id (int): The ID of the player to retrieve the money bag amount for.
+        
+    Returns:
+        int: The player's money bag amount, or None if the player is not found.
+    """
     player = session.query(Player).filter_by(id=player_id).first()
     return player.money_bag if player else None
 
 # Update a player's money bag amount in the database
 def update_player_money_bag(session, player_id: int, new_amount: int) -> None:
+    """
+    Update a player's money bag amount in the database.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player_id (int): The ID of the player to update the money bag amount for.
+        new_amount (int): The new money bag amount to set for the player.
+        
+    Raises:
+        Exception: If the player is not found in the database.
+    """
     player = session.query(Player).filter_by(id=player_id).first()
     if player:
         player.money_bag = new_amount
@@ -127,6 +212,16 @@ def record_game_session(
     player_hand: List[Dict[str, str]],
     outcome: str,
 ) -> None:
+    """
+    Record a completed game session in the database.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player_id (int): The ID of the player who played the game.
+        dealer_hand (List[Dict[str, str]]): The dealer's hand at the end of the game.
+        player_hand (List[Dict[str, str]]): The player's hand at the end of the game.
+        outcome (str): The outcome of the game (e.g., "Win", "Loss", "Tie").
+    """
     game_session = GameSession(
         player_id=player_id,
         dealer_hand_value=calculate_hand_value(dealer_hand),
@@ -138,6 +233,15 @@ def record_game_session(
 
 # Get user input with validation
 def get_user_input(prompt_text: str) -> str:
+    """
+    Prompt the user for input and validate the input.
+    
+    Args:
+        prompt_text (str): The text to display as the prompt to the user.
+        
+    Returns:
+        str: The user's input, stripped of leading/trailing whitespace.
+    """
     while True:
         user_input = prompt(prompt_text).strip().lower()
         if user_input:
@@ -146,6 +250,13 @@ def get_user_input(prompt_text: str) -> str:
 
 # Play a game of blackjack
 def play_game(session, player: Player) -> None:
+    """
+    Play a single game of blackjack.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player (Player): The player object representing the user playing the game.
+    """
     os.system("clear")
     deck = create_deck()
     player_id = player.id
@@ -227,6 +338,12 @@ def play_game(session, player: Player) -> None:
 
 # Main blackjack game loop
 def blackjack_game(session) -> None:
+    """
+    The main game loop for playing multiple rounds of blackjack.
+    
+    Args:
+        session: The SQLAlchemy database session.
+    """
     console.print(header)
     console.print(instructions)
     while True:

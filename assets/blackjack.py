@@ -114,23 +114,24 @@ def get_user_input(prompt_text: str) -> str:
         else:
             console.print("Invalid input. Please try again.", style="bold red")
 
-def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
-    """Displays the outcome of the game and returns it as a string."""
-    if player_hand_value > 21:
-        console.print("Player busts! Dealer wins.")
-        return "Loss"
-    elif dealer_hand_value > 21:
-        console.print("Dealer busts! Player wins.")
-        return "Win"
-    elif player_hand_value > dealer_hand_value:
-        console.print("Player wins!")
-        return "Win"
-    elif player_hand_value < dealer_hand_value:
-        console.print("Dealer wins!")
-        return "Loss"
-    else:
-        console.print("It's a tie!")
-        return "Tie"
+# def display_game_outcome(player_hand_value: int, dealer_hand_value: int) -> str:
+#     """Displays the outcome of the game and returns it as a string."""
+#     if player_hand_value > 21:
+#         console.print("Player busts! Dealer wins.")
+#         return "Loss"
+#     elif dealer_hand_value > 21:
+#         console.print("Dealer busts! Player wins.")
+        
+#         return "Win"
+#     elif player_hand_value > dealer_hand_value:
+#         console.print("Player wins!")
+#         return "Win"
+#     elif player_hand_value < dealer_hand_value:
+#         console.print("Dealer wins!")
+#         return "Loss"
+#     else:
+#         console.print("It's a tie!")
+#         return "Tie"
 
 def play_game(session, player) -> None:
     """Handles the game logic for a single game of blackjack."""
@@ -139,7 +140,13 @@ def play_game(session, player) -> None:
     player_id = player.id
     current_money = get_player_money_bag(session, player_id)
     
-    table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
+    if current_money < 1:
+        print("Sorry you've had a string of bad luck. We're extending you $100 in credit.")
+        
+        update_player_money_bag(session, player_id, 100)
+        prompt("Press enter to continue")
+    
+    bet = table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
         
     shuffle_deck(deck)
 
@@ -148,6 +155,13 @@ def play_game(session, player) -> None:
 
     display_hand(player_hand, "Player")
     display_hand(dealer_hand, "Dealer")
+    
+    if calculate_hand_value(player_hand) == 21 and calculate_hand_value(dealer_hand)<21:
+        print(f"{header}")
+        print("You won!")
+        new_amount = get_player_money_bag(session, player_id) + (2.5 * bet)
+        update_player_money_bag(session, player_id, new_amount)
+               
 
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit, stand or get help? ")
@@ -171,9 +185,35 @@ def play_game(session, player) -> None:
     display_hand(dealer_hand, "Dealer")
 
     dealer_hand_value = calculate_hand_value(dealer_hand)
-
-    outcome = display_game_outcome(player_hand_value, dealer_hand_value)
-    return dealer_hand, player_hand, outcome
+    
+    if player_hand_value > 21:
+        console.print("Player busts! Dealer wins.")
+        outcome = "Loss"
+        return dealer_hand, player_hand, outcome
+    elif dealer_hand_value > 21:
+        console.print("Dealer busts! Player wins.")
+        current_money_bag =get_player_money_bag(session, player_id)
+        new_amount = current_money_bag + (2 * bet)
+        update_player_money_bag(session, player_id, new_amount)
+        outcome = "Win"     
+        return dealer_hand, player_hand, outcome
+    elif player_hand_value > dealer_hand_value:
+        current_money_bag =get_player_money_bag(session, player_id)
+        new_amount = current_money_bag + (2 * bet)
+        console.print("Player wins!")
+        outcome = "Win"
+        return dealer_hand, player_hand, outcome
+    elif player_hand_value < dealer_hand_value:
+        console.print("Dealer wins!")
+        outcome = "Loss"
+        return dealer_hand, player_hand, outcome
+    else:
+        console.print("It's a tie!")
+        outcome = "Tie"
+        return dealer_hand, player_hand, outcome 
+      
+    #outcome = display_game_outcome(player_hand_value, dealer_hand_value)
+    #return dealer_hand, player_hand, outcome
 
 def blackjack_game(session) -> None:
     """Main function to play a game of blackjack."""

@@ -217,6 +217,7 @@ def play_game(session, player: Player, num_computer_players: int) -> None:
         outcome = "Win"     
     elif player_hand_value > dealer_hand_value:
         new_amount = get_player_money_bag(session, player_id) + (2 * bet)
+        update_player_money_bag(session, player_id, new_amount)
         console.print("Player wins!")
         outcome = "Win"
     elif player_hand_value < dealer_hand_value:

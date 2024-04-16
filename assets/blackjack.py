@@ -66,7 +66,7 @@ def display_hand(
     hide_dealer_card: bool = False,
     calculate_value: bool = True,
 ) -> None:
-    console.print(f"{player}'s hand:")
+    console.print(f"[bold blue]{player}'s hand:[/bold blue]")
     card_names = []
     ascii_arts = []
     for i, card in enumerate(hand):

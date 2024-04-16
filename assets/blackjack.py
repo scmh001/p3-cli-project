@@ -153,6 +153,7 @@ def play_game(session, player: Player) -> None:
     if current_money < 1:
         print("Sorry you've had a string of bad luck. We're extending you $100 in credit.")
         update_player_money_bag(session, player_id, 100)
+        current_money = 100
         prompt("Press enter to continue")
     
     bet = table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
@@ -212,6 +213,8 @@ def play_game(session, player: Player) -> None:
         outcome = "Loss"
     else:
         console.print("It's a tie!")
+        new_amount = get_player_money_bag(session, player_id) + (bet)
+        update_player_money_bag(session, player_id, new_amount)
         outcome = "Tie"
       
     return dealer_hand, player_hand, outcome

@@ -144,7 +144,13 @@ def get_user_input(prompt_text: str) -> str:
         console.print("Invalid input. Please try again.", style="bold red")
 
 
-def play_game(session, player: Player) -> None:
+def computer_play(hand: List[Dict[str, str]], deck: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    while calculate_hand_value(hand) < 17:
+        hand.append(deal_card(deck))
+    return hand
+
+
+def play_game(session, player: Player, num_computer_players: int) -> None:
     os.system("clear")
     deck = create_deck()
     player_id = player.id
@@ -161,9 +167,12 @@ def play_game(session, player: Player) -> None:
 
     player_hand = [deal_card(deck), deal_card(deck)]
     dealer_hand = [deal_card(deck), deal_card(deck)]
+    computer_hands = [[deal_card(deck), deal_card(deck)] for _ in range(num_computer_players)]
 
     display_hand(dealer_hand, "Dealer", hide_dealer_card=True, calculate_value=False)
     display_hand(player_hand, "Player")
+    for i, hand in enumerate(computer_hands, 1):
+        display_hand(hand, f"Computer {i}")
     
     if calculate_hand_value(player_hand) == 21 and calculate_hand_value(dealer_hand) < 21:
         print(f"{header}")
@@ -188,11 +197,15 @@ def play_game(session, player: Player) -> None:
             console.print("Suggested play:", style="bold green")
             console.print(suggestion)
 
+    for i, hand in enumerate(computer_hands, 1):
+        computer_hands[i-1] = computer_play(hand, deck)
+
     console.print("Revealing Dealer's Hand...")
     display_hand(dealer_hand, "Dealer", calculate_value=True)
 
     player_hand_value = calculate_hand_value(player_hand)
     dealer_hand_value = calculate_hand_value(dealer_hand)
+    computer_hand_values = [calculate_hand_value(hand) for hand in computer_hands]
     
     if player_hand_value > 21:
         console.print("Player busts! Dealer wins.")
@@ -202,13 +215,13 @@ def play_game(session, player: Player) -> None:
         new_amount = get_player_money_bag(session, player_id) + (2 * bet)
         update_player_money_bag(session, player_id, new_amount)
         outcome = "Win"     
-    elif player_hand_value > dealer_hand_value:
+    elif player_hand_value > dealer_hand_value and player_hand_value > max(computer_hand_values):
         new_amount = get_player_money_bag(session, player_id) + (2 * bet)
         update_player_money_bag(session, player_id, new_amount)
         console.print("Player wins!")
         outcome = "Win"
-    elif player_hand_value < dealer_hand_value:
-        console.print("Dealer wins!")
+    elif player_hand_value < dealer_hand_value or player_hand_value < max(computer_hand_values):
+        console.print("Dealer or computer wins!")
         outcome = "Loss"
     else:
         console.print("It's a tie!")
@@ -224,7 +237,16 @@ def blackjack_game(session) -> None:
         player_name = get_user_input("Please enter your player name: ")
         player = get_or_create_player(session, player_name)
 
-        dealer_hand, player_hand, outcome = play_game(session, player)
+        num_computer_players = 0
+        while True:
+            num_str = get_user_input("Enter number of computer opponents (0-2): ")
+            if num_str in ["0", "1", "2"]:
+                num_computer_players = int(num_str)
+                break
+            else:
+                console.print("Invalid input. Please enter 0, 1, or 2.", style="bold red")
+
+        dealer_hand, player_hand, outcome = play_game(session, player, num_computer_players)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
 
         play_again = get_user_input("Do you want to play again? (yes/no): ")

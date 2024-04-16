@@ -1,4 +1,10 @@
-# this configuration file contains constants used in application
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+DB_URL = "sqlite:///blackjack.db"
 
 
 # Constants
@@ -20,15 +26,13 @@ VALUES = {
     'King': 10
 }
 
-# db
-# Database connection
-DB_NAME = 'jack.db'
+
 
 
 
 # Instructions for introduction to game play.
 
-header = ( """
+HEADER = ( """
  /$$$$$$$  /$$        /$$$$$$   /$$$$$$  /$$   /$$    /$$$$$  /$$$$$$   /$$$$$$  /$$   /$$
 | $$__  $$| $$       /$$__  $$ /$$__  $$| $$  /$$/   |__  $$ /$$__  $$ /$$__  $$| $$  /$$/
 | $$  \ $$| $$      | $$  \ $$| $$  \__/| $$ /$$/       | $$| $$  \ $$| $$  \__/| $$ /$$/ 
@@ -39,7 +43,7 @@ header = ( """
 |_______/ |________/|__/  |__/ \______/ |__/  \__/ \______/ |__/  |__/ \______/ |__/  \__/
                                                                                          """)
 
-instructions = """
+INSTRUCTIONS = """
 Instructions:
 1. The goal is to get as close to 21 as possible without going over.
 2. Face cards (Jack, Queen, King) are worth 10 points.

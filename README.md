@@ -36,10 +36,11 @@ Use openai version 0.27
 * Ace Handling: Choose whether an Ace holds a value of 1 or 11, based on your strategy.
 * Dealer Rules: Dealer hits below 16 and stands on 17 or above.
 * Replayability: After each round, decide if you want to play again with just a simple command.
-* Tracking player wins (incomplete)
+* Tracking player wins
 * Username input
 * Determine winner
 * Integrate betting system
+
 
 ## 🌟 Stretch Deliverables: 
 > (Future Enhancements):
@@ -48,10 +49,11 @@ Use openai version 0.27
 * Special effect on winning (21)
 * Add special effects and audio for winning hands
 * Support multiple decks
-* Implement resume game feature
+* Implement resume game feature (player money history)
 * Visual representation of cards
 * Enhance ASCII art card representations
 * Migrate to SQLAlchemy for database management.
+* Winning Hand Outcomes
 
 ## Database Schema
 >Database Schema

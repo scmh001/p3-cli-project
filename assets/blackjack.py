@@ -17,12 +17,13 @@ from outcomes import view_game_outcomes
 
 console = Console()
 
-
+# Configure environment variables and OpenAI API key
 def configure() -> None:
+    """Load enviroment variables and configure OpenAI key """
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
+# Get play suggestion from OpenAI based on game state 
 def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
     prompt_text = (
         f"Given the current game state:\n"
@@ -38,19 +39,19 @@ def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
     )
     return response.choices[0].text.strip()
 
-
+# Create a new deck of cards
 def create_deck() -> List[Dict[str, str]]:
     return [{"suit": suit, "rank": rank} for suit in SUITS for rank in RANKS]
 
-
+# Shuffle the deck of cards
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
     random.shuffle(deck)
 
-
+# Deal a card from the deck
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
     return deck.pop()
 
-
+# Calculate the value of a hand of cards
 def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
     value = sum(VALUES[card["rank"]] for card in hand)
     aces = sum(card["rank"] == "Ace" for card in hand)
@@ -59,7 +60,7 @@ def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
         aces -= 1
     return value
 
-
+# Display a hand of cards
 def display_hand(
     hand: List[Dict[str, str]],
     player: str,
@@ -95,7 +96,7 @@ def display_hand(
     if calculate_value:
         console.print(f"Value: {calculate_hand_value(hand)}\n")
 
-
+# Get or create a player in the database
 def get_or_create_player(session, name: str) -> Player:
     player = session.query(Player).filter_by(name=name).first()
     if not player:
@@ -104,12 +105,12 @@ def get_or_create_player(session, name: str) -> Player:
         session.commit()
     return player
 
-
+# Get a player's money bag amount from the database
 def get_player_money_bag(session, player_id: int) -> int:
     player = session.query(Player).filter_by(id=player_id).first()
     return player.money_bag if player else None
 
-
+# Update a player's money bag amount in the database
 def update_player_money_bag(session, player_id: int, new_amount: int) -> None:
     player = session.query(Player).filter_by(id=player_id).first()
     if player:
@@ -118,7 +119,7 @@ def update_player_money_bag(session, player_id: int, new_amount: int) -> None:
     else:
         raise Exception("Player not found")
 
-
+# Record a game session in the database
 def record_game_session(
     session,
     player_id: int,
@@ -135,7 +136,7 @@ def record_game_session(
     session.add(game_session)
     session.commit()
 
-
+# Get user input with validation
 def get_user_input(prompt_text: str) -> str:
     while True:
         user_input = prompt(prompt_text).strip().lower()
@@ -143,19 +144,21 @@ def get_user_input(prompt_text: str) -> str:
             return user_input
         console.print("Invalid input. Please try again.", style="bold red")
 
-
+# Play a game of blackjack
 def play_game(session, player: Player) -> None:
     os.system("clear")
     deck = create_deck()
     player_id = player.id
     current_money = get_player_money_bag(session, player_id)
     
+    # Extend credit if player is out of money
     if current_money < 1:
         print("Sorry you've had a string of bad luck. We're extending you $100 in credit.")
         update_player_money_bag(session, player_id, 100)
         current_money = 100
         prompt("Press enter to continue")
     
+    # Place bets
     bet = table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
         
     shuffle_deck(deck)
@@ -166,6 +169,7 @@ def play_game(session, player: Player) -> None:
     display_hand(dealer_hand, "Dealer", hide_dealer_card=True, calculate_value=False)
     display_hand(player_hand, "Player")
     
+    # Check for blackjack
     if calculate_hand_value(player_hand) == 21 and calculate_hand_value(dealer_hand) < 21:
         print(f"{header}")
         print("You won!")
@@ -173,6 +177,7 @@ def play_game(session, player: Player) -> None:
         update_player_money_bag(session, player_id, new_amount)
         return dealer_hand, player_hand, "Win"
 
+    # Player's turn
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit, stand or get help? ")
         if action == "hit":
@@ -195,6 +200,7 @@ def play_game(session, player: Player) -> None:
     player_hand_value = calculate_hand_value(player_hand)
     dealer_hand_value = calculate_hand_value(dealer_hand)
     
+    # Determine winner
     if player_hand_value > 21:
         console.print("Player busts! Dealer wins.")
         outcome = "Loss"
@@ -219,7 +225,7 @@ def play_game(session, player: Player) -> None:
       
     return dealer_hand, player_hand, outcome
 
-
+# Main blackjack game loop
 def blackjack_game(session) -> None:
     console.print(header)
     console.print(instructions)
@@ -235,7 +241,7 @@ def blackjack_game(session) -> None:
             console.print("Thanks for playing!")
             break
 
-
+# View past game outcomes
 def view_game_outcomes(session) -> None:
     query = (
         session.query(
@@ -266,7 +272,7 @@ def view_game_outcomes(session) -> None:
 
     console.print(table)
 
-
+# Main program entry point
 def main() -> None:
     configure()
     db_url = "sqlite:///blackjack.db"
@@ -289,6 +295,6 @@ def main() -> None:
             else:
                 console.print("Invalid input. Please try again.", style="bold red")
 
-
+# Run the main program
 if __name__ == "__main__":
     main()

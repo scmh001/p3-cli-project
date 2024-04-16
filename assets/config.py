@@ -3,12 +3,50 @@
 
 # Constants
 SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
-RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
+RANKS = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King']
 VALUES = {
-    '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
-    'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11
+    'Ace': 11,
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9,
+    '10': 10,
+    'Jack': 10,
+    'Queen': 10,
+    'King': 10
 }
 
 # db
 # Database connection
 DB_NAME = 'jack.db'
+
+
+
+# Instructions for introduction to game play.
+
+header = ( """
+ /$$$$$$$  /$$        /$$$$$$   /$$$$$$  /$$   /$$    /$$$$$  /$$$$$$   /$$$$$$  /$$   /$$
+| $$__  $$| $$       /$$__  $$ /$$__  $$| $$  /$$/   |__  $$ /$$__  $$ /$$__  $$| $$  /$$/
+| $$  \ $$| $$      | $$  \ $$| $$  \__/| $$ /$$/       | $$| $$  \ $$| $$  \__/| $$ /$$/ 
+| $$$$$$$ | $$      | $$$$$$$$| $$      | $$$$$/        | $$| $$$$$$$$| $$      | $$$$$/  
+| $$__  $$| $$      | $$__  $$| $$      | $$  $$   /$$  | $$| $$__  $$| $$      | $$  $$  
+| $$  \ $$| $$      | $$  | $$| $$    $$| $$\  $$ | $$  | $$| $$  | $$| $$    $$| $$\  $$ 
+| $$$$$$$/| $$$$$$$$| $$  | $$|  $$$$$$/| $$ \  $$|  $$$$$$/| $$  | $$|  $$$$$$/| $$ \  $$
+|_______/ |________/|__/  |__/ \______/ |__/  \__/ \______/ |__/  |__/ \______/ |__/  \__/
+                                                                                         """)
+
+instructions = """
+Instructions:
+1. The goal is to get as close to 21 as possible without going over.
+2. Face cards (Jack, Queen, King) are worth 10 points.
+3. Aces are worth 1 or 11 points, whichever is more advantageous.
+4. Other cards are worth their face value.
+5. The dealer must hit until their hand value is at least 17.
+6. If you go over 21, you bust and lose the game.
+7. If the dealer busts, you win the game.
+8. If both you and the dealer have the same hand value, it's a tie.
+"""

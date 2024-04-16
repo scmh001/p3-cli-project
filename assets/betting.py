@@ -24,38 +24,35 @@ def place_bets(session, max_bet, player_id,
             print("Invalid input. Please enter a numerical value.")
             
 def table_bets(session, player_id, money_bag, get_player_money_bag, update_player_money_bag):
-
-    if 1 <= money_bag <=250:
+    
+    if  1 <= money_bag <=250:
         max_bet = 20
         print(f"You currently have ${money_bag}.")
-        place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
+        bet = place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
+        return bet
     
     elif 251 <= money_bag <=500:
         max_bet = 50
         print(f"You currently have ${money_bag}.")
-        place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
-        
+        bet = place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
+        return bet
     elif 501 <= money_bag <=1000:
         max_bet = 100
         print(f"You currently have ${money_bag}.")
-        place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
-        
+        bet = place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
+        return bet
     elif 1001 <= money_bag <=5000:
         max_bet = 250
         print(f"You currently have ${money_bag}.")
-        place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
-        
+        bet = place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
+        return bet
     elif 5001 <= money_bag <=10000:
         max_bet = 500
         print(f"You currently have ${money_bag}.")
-        place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
-        
+        bet = place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
+        return bet
     elif 10001 < money_bag:
         max_bet = 1000
         print(f"You currently have ${money_bag}.")
-        place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
-        
-        
-        
-        
-        
+        bet = place_bets(session, max_bet, player_id, get_player_money_bag, update_player_money_bag)
+        return bet

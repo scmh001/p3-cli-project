@@ -10,6 +10,9 @@ To start type command below in user-terminal; type play; enter player name; begi
 Follow the on-screen prompts to enter your **player** name and **play** the game. You can choose to **hit** or **stand** on your turn. The game will display the outcome (win, loss, or tie) after each round.
 To view past game outcomes, enter **'view'** at the main menu. To quit the game, enter **'quit'**.
 
+Use openai version 0.27
+>pip install openai==0.27
+
 
 ## ⚙️ Technologies / Libraries Include:
 1. Python: The core language used for development.
@@ -19,47 +22,49 @@ To view past game outcomes, enter **'view'** at the main menu. To quit the game,
 5. SQLAlchemy: Manages database interactions.
 6. Argparse: Adds helpful command-line options.
 7. Pygame: Audio mixer usage.
+8. OpenAI: Powerful AI text generation ( GPT-3.5 )
+9. Typing: Type hints for Python
 
 
 ## 🎲 Deliverables: 
 > (User Stories):
 * Real-Time Decisions: Choose to "hit" or "stand" on your turn and watch as the game unfolds in real time.
-* Player draw
-* Dealer draw
-* Randomize card draw
-* Shuffle deck
-* Reset deck
+* Player draw and Dealer draw
+* Randomized card draw and deck shuffling
+* Reset deck functionality
 * Game End Conditions: The game automatically concludes if your card total exceeds 21.
 * Ace Handling: Choose whether an Ace holds a value of 1 or 11, based on your strategy.
 * Dealer Rules: Dealer hits below 16 and stands on 17 or above.
 * Replayability: After each round, decide if you want to play again with just a simple command.
-* Tracking player wins (incomplete)
+* Tracking player wins
 * Username input
 * Determine winner
 * Integrate betting system
-* Fleshing out argparse commands
+
 
 ## 🌟 Stretch Deliverables: 
 > (Future Enhancements):
 * Implement multiplayer functionality (computer)
-* ai implementation (multiple players)
-* Special effect on winning(21)
+* AI implementation (help suggestions)
+* Special effect on winning (21)
 * Add special effects and audio for winning hands
 * Support multiple decks
-* Implement resume game feature
+* Implement resume game feature (player money history)
 * Visual representation of cards
 * Enhance ASCII art card representations
-* Migrate to SQLAlchemy
+* Migrate to SQLAlchemy for database management.
+* Winning Hand Outcomes
 
 ## Database Schema
 >Database Schema
 
-The application uses a SQLAlchemy database ( blackjack.db) to store player information and game outcomes. The database contains two tables:
-players: Stores player ID and name
-game_sessions: Stores game outcomes with player ID, dealer and player hand values, and outcome (win/loss/tie)
+The application uses a SQLAlchemy database ( blackjack.db) to store player information and game outcomes. 
+The database contains two tables:
+* players: Stores player_ID, name, money_bag
+* game_sessions: Stores game outcomes with player_ID, dealer and player hand values, and outcome (win/loss/tie)
 
 ## 🗺️ Decision Tree
->A decision tree of the flow of your CLI.  
+>Decision Tree
 
 <img src="planning/decisiontree2.JPG" alt="decision-tree">
 
@@ -69,7 +74,7 @@ game_sessions: Stores game outcomes with player ID, dealer and player hand value
 <img src="planning/diagram5.JPG" alt="diagram">
 
 ## 🗺️ Trello Board
->A kanban board showing how you will be dividing tasks among partners
+>The project tasks and progress were managed using a Trello board
 
 <img src="planning/trello2.JPG" alt="trello"/>
 

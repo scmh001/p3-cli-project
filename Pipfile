@@ -10,7 +10,9 @@ prompt-toolkit = "*"
 npyscreen = "*"
 argparse = "*"
 sqlalchemy = "*"
-playsound = "*"
+openai = "*"
+pygame = "*"
+typing = "*"
 
 [dev-packages]
 rich = "*"
@@ -19,7 +21,9 @@ prompt-toolkit = "*"
 npyscreen = "*"
 argparse = "*"
 sqlalchemy = "*"
-playsound = "*"
+openai = "*"
+pygame = "*"
+typing = "*"
 
 [requires]
 python_version = "3.8"

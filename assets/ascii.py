@@ -1,5 +1,4 @@
 # ascii art cards
-
 deck_of_cards = {
     "Ace of Spades": """
      _______

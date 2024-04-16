@@ -11,9 +11,8 @@ from sqlalchemy.orm import sessionmaker
 from ascii import deck_of_cards
 from betting import place_bets, table_bets
 from config import RANKS, SUITS, VALUES, header, instructions
-from database import (GameSession, Player, get_db_engine, init_db)
+from models import (GameSession, Player, get_db_engine, init_db)
 from dotenv import load_dotenv
-from outcomes import view_game_outcomes
 
 console = Console()
 

@@ -63,7 +63,9 @@ def create_deck() -> List[Dict[str, str]]:
         List[Dict[str, str]]: A list of dictionaries representing each card in the deck,
             where each dictionary contains the 'suit' and 'rank' of the card.
     """
-    return [{"suit": suit, "rank": rank} for suit in SUITS for rank in RANKS]
+    num_decks = 1
+    return [{"suit": suit, "rank": rank} for suit in SUITS for rank in RANKS for _ in range(num_decks)]
+
 
 # Shuffle the deck of cards
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
@@ -257,8 +259,9 @@ def get_user_input(prompt_text: str, allow_empty=False) -> str:
                 return user_input
             console.print("Invalid input. Please try again.", style="bold red")
 
+
 # Play a game of blackjack
-def play_game(session, player: Player) -> None:
+def play_game(session, player: Player, deck: List[Dict[str, str]]) -> None:
     """
     Play a single game of blackjack.
     
@@ -266,8 +269,7 @@ def play_game(session, player: Player) -> None:
         session: The SQLAlchemy database session.
         player (Player): The player object representing the user playing the game.
     """
-    os.system("clear")
-    deck = create_deck()
+    
     player_id = player.id
     current_money = get_player_money_bag(session, player_id)
     
@@ -280,8 +282,6 @@ def play_game(session, player: Player) -> None:
     
     # Place bets
     bet = table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
-        
-    shuffle_deck(deck)
 
     player_hand = [deal_card(deck), deal_card(deck)]
     dealer_hand = [deal_card(deck), deal_card(deck)]
@@ -300,24 +300,6 @@ def play_game(session, player: Player) -> None:
         update_player_money_bag(session, player_id, new_amount)
         return dealer_hand, player_hand, "Win"
 
-    # Player's turn
-    # while calculate_hand_value(player_hand) < 21:
-    #     action = get_user_input("Do you want to hit, stand or get help? ")
-    #     if action == "hit":
-    #         os.system("clear")
-    #         player_hand.append(deal_card(deck))
-    #         display_hand(player_hand, "Player")
-    #         display_hand(dealer_hand, "Dealer")
-    #     elif action == "stand":
-    #         break
-    #     elif action == "help":
-    #         suggestion = get_play_suggestion(
-    #             {"player_hand": player_hand, "dealer_hand": dealer_hand}
-    #         )
-    #         console.print("Suggested play:", style="bold green")
-    #         console.print(suggestion)
-    
-    
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit, stand or get help? ")
         if action == "hit":
@@ -385,28 +367,14 @@ def blackjack_game(session) -> None:
     # Args:
     #     session: The SQLAlchemy database session.
     # """
-    # os.system("clear")
-    # console.print(header)
-    # console.print(instructions)
-    # play_start_sound()
-    
-    # while True:
-    #     os.system("clear")
-    #     player_name = get_user_input("Please enter your player name: ")
-    #     player = get_or_create_player(session, player_name)
-    #     dealer_hand, player_hand, outcome = play_game(session, player)
-    #     record_game_session(session, player.id, dealer_hand, player_hand, outcome)
-
-    #     play_again = get_user_input("Do you want to play again? (yes/no): ")
-    #     if play_again != "yes":
-    #         os.system("clear")
-    #         console.print("Thanks for playing!")
-    #         break
-    
     os.system("clear")
     console.print(header)
     console.print(instructions)
     play_start_sound()
+    
+    # Create and shuffle the shoe
+    deck = create_deck()
+    shuffle_deck(deck)
     
     # Initial setup: Get the player's name only once
     player_name = get_user_input("Please enter your player name: ", allow_empty=False)
@@ -417,8 +385,13 @@ def blackjack_game(session) -> None:
         console.print(f"Welcome back, {player_name}!")
 
         # Start a new game with the existing player object
-        dealer_hand, player_hand, outcome = play_game(session, player)
+        dealer_hand, player_hand, outcome = play_game(session, player, deck)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
+        
+        if len(deck) < 5:  # Arbitrary low deck threshold to trigger reshuffle
+            deck = create_deck()
+            shuffle_deck(deck)
+            print("Deck reshuffled due to low card count.")
 
         # Ask the user if they want to play again
         play_again = get_user_input("Press Enter to play again or type 'no' to exit: ", allow_empty=True)

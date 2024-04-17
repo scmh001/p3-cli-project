@@ -42,6 +42,7 @@ def get_play_suggestion(state: Dict[str, List[Dict[str, str]]], hi_lo_count: int
         f"Given the current game state:\n"
         f"Player hand: {state['player_hand']}\n"
         f"Dealer hand: {state['dealer_hand']}\n"
+        f"Current Hi-Lo count: {hi_lo_count}\n"
         f"Should I hit or stand?"
     )
     response = openai.Completion.create(
@@ -178,21 +179,6 @@ def record_game_session(
 
 
 def get_user_input(prompt_text: str, allow_empty=False) -> str:
-    # """
-    # Prompt the user for input and validate the input.
-    
-    # Args:
-    #     prompt_text (str): The text to display as the prompt to the user.
-        
-    # Returns:
-    #     str: The user's input, stripped of leading/trailing whitespace.
-    # """
-    # while True:
-    #     user_input = prompt(prompt_text).strip().lower()
-    #     if user_input:
-    #         return user_input
-    #     console.print("Invalid input. Please try again.", style="bold red")
-        
         while True:
             user_input = input(prompt_text).strip().lower()
             if user_input or allow_empty:

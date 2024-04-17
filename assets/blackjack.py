@@ -166,7 +166,7 @@ def get_or_create_player(session, name: str) -> Player:
         Player: The retrieved or newly created player object.
     """
     player = session.query(Player).filter_by(name=name).first()
-    if not player:
+    if player is None:
         player = Player(name=name)
         session.add(player)
         session.commit()
@@ -235,21 +235,27 @@ def record_game_session(
     session.commit()
 
 # Get user input with validation
-def get_user_input(prompt_text: str) -> str:
-    """
-    Prompt the user for input and validate the input.
+def get_user_input(prompt_text: str, allow_empty=False) -> str:
+    # """
+    # Prompt the user for input and validate the input.
     
-    Args:
-        prompt_text (str): The text to display as the prompt to the user.
+    # Args:
+    #     prompt_text (str): The text to display as the prompt to the user.
         
-    Returns:
-        str: The user's input, stripped of leading/trailing whitespace.
-    """
-    while True:
-        user_input = prompt(prompt_text).strip().lower()
-        if user_input:
-            return user_input
-        console.print("Invalid input. Please try again.", style="bold red")
+    # Returns:
+    #     str: The user's input, stripped of leading/trailing whitespace.
+    # """
+    # while True:
+    #     user_input = prompt(prompt_text).strip().lower()
+    #     if user_input:
+    #         return user_input
+    #     console.print("Invalid input. Please try again.", style="bold red")
+        
+        while True:
+            user_input = input(prompt_text).strip().lower()
+            if user_input or allow_empty:
+                return user_input
+            console.print("Invalid input. Please try again.", style="bold red")
 
 # Play a game of blackjack
 def play_game(session, player: Player) -> None:
@@ -349,29 +355,54 @@ def play_game(session, player: Player) -> None:
 
 # Main blackjack game loop
 def blackjack_game(session) -> None:
-    """
-    The main game loop for playing multiple rounds of blackjack.
+    # """
+    # The main game loop for playing multiple rounds of blackjack.
     
-    Args:
-        session: The SQLAlchemy database session.
-    """
+    # Args:
+    #     session: The SQLAlchemy database session.
+    # """
+    # os.system("clear")
+    # console.print(header)
+    # console.print(instructions)
+    # play_start_sound()
+    
+    # while True:
+    #     os.system("clear")
+    #     player_name = get_user_input("Please enter your player name: ")
+    #     player = get_or_create_player(session, player_name)
+    #     dealer_hand, player_hand, outcome = play_game(session, player)
+    #     record_game_session(session, player.id, dealer_hand, player_hand, outcome)
+
+    #     play_again = get_user_input("Do you want to play again? (yes/no): ")
+    #     if play_again != "yes":
+    #         os.system("clear")
+    #         console.print("Thanks for playing!")
+    #         break
+    
     os.system("clear")
     console.print(header)
     console.print(instructions)
     play_start_sound()
     
+    # Initial setup: Get the player's name only once
+    player_name = get_user_input("Please enter your player name: ", allow_empty=False)
+    player = get_or_create_player(session, player_name)
+
     while True:
         os.system("clear")
-        player_name = get_user_input("Please enter your player name: ")
-        player = get_or_create_player(session, player_name)
+        console.print(f"Welcome back, {player_name}!")
+
+        # Start a new game with the existing player object
         dealer_hand, player_hand, outcome = play_game(session, player)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
 
-        play_again = get_user_input("Do you want to play again? (yes/no): ")
-        if play_again != "yes":
+        # Ask the user if they want to play again
+        play_again = get_user_input("Press Enter to play again or type 'no' to exit: ", allow_empty=True)
+        if play_again.lower() == "no":
             os.system("clear")
             console.print("Thanks for playing!")
             break
+     
 
 # View past game outcomes
 def view_game_outcomes(session) -> None:

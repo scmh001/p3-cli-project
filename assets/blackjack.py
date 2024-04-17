@@ -48,7 +48,7 @@ def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
         model="gpt-3.5-turbo-instruct",
         prompt=prompt_text,
         temperature=0.1,
-        max_tokens=50,
+        max_tokens=75,
     )
     return response.choices[0].text.strip()
 

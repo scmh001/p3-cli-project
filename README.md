@@ -9,6 +9,11 @@ To start type command below in user-terminal; type play; enter player name; begi
 
 Follow the on-screen prompts to enter your **player** name and **play** the game. You can choose to **hit** or **stand** on your turn. The game will display the outcome (win, loss, or tie) after each round.
 To view past game outcomes, enter **'view'** at the main menu. To quit the game, enter **'quit'**.
+### OpenAI
+
+>Note: Use your own openai API key by getting a free one [OpenAI](https://openai.com/) and paste it in .env file to use AI help features.
+
+**DO NOT SHARE YOUR SECRET KEY -- DO NOT PUSH TO GITHUB WITH KEY ACTIVE**
 
 Use openai version 0.27
 >pip install openai==0.27

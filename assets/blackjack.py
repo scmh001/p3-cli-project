@@ -286,8 +286,11 @@ def play_game(session, player: Player) -> None:
     player_hand = [deal_card(deck), deal_card(deck)]
     dealer_hand = [deal_card(deck), deal_card(deck)]
 
-    display_hand(dealer_hand, "Dealer", hide_dealer_card=True, calculate_value=False)
-    display_hand(player_hand, "Player")
+    # display_hand(dealer_hand, "Dealer", hide_dealer_card=True, calculate_value=False)
+    # display_hand(player_hand, "Player")
+    
+    display_hand([dealer_hand[0], {"rank": "Hidden", "suit": ""}], "Dealer", hide_dealer_card=True, calculate_value=False)
+    display_hand(player_hand, "Player", hide_dealer_card=False, calculate_value=True)
     
     # Check for blackjack
     if calculate_hand_value(player_hand) == 21 and calculate_hand_value(dealer_hand) < 21:
@@ -298,13 +301,30 @@ def play_game(session, player: Player) -> None:
         return dealer_hand, player_hand, "Win"
 
     # Player's turn
+    # while calculate_hand_value(player_hand) < 21:
+    #     action = get_user_input("Do you want to hit, stand or get help? ")
+    #     if action == "hit":
+    #         os.system("clear")
+    #         player_hand.append(deal_card(deck))
+    #         display_hand(player_hand, "Player")
+    #         display_hand(dealer_hand, "Dealer")
+    #     elif action == "stand":
+    #         break
+    #     elif action == "help":
+    #         suggestion = get_play_suggestion(
+    #             {"player_hand": player_hand, "dealer_hand": dealer_hand}
+    #         )
+    #         console.print("Suggested play:", style="bold green")
+    #         console.print(suggestion)
+    
+    
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit, stand or get help? ")
         if action == "hit":
-            os.system("clear")
             player_hand.append(deal_card(deck))
+            os.system("clear")
+            display_hand([dealer_hand[0], {"rank": "Hidden", "suit": ""}], "Dealer", hide_dealer_card=True, calculate_value=False)
             display_hand(player_hand, "Player")
-            display_hand(dealer_hand, "Dealer")
         elif action == "stand":
             break
         elif action == "help":
@@ -313,9 +333,13 @@ def play_game(session, player: Player) -> None:
             )
             console.print("Suggested play:", style="bold green")
             console.print(suggestion)
+    
 
     console.print("Revealing Dealer's Hand...")
-    display_hand(dealer_hand, "Dealer", calculate_value=True)
+    display_hand(dealer_hand, "Dealer", hide_dealer_card=False, calculate_value=True)
+    while calculate_hand_value(dealer_hand) < 17:
+        dealer_hand.append(deal_card(deck))
+        display_hand(dealer_hand, "Dealer", hide_dealer_card=False, calculate_value=True)
 
     player_hand_value = calculate_hand_value(player_hand)
     dealer_hand_value = calculate_hand_value(dealer_hand)

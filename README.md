@@ -13,6 +13,8 @@ To view past game outcomes, enter **'view'** at the main menu. To quit the game,
 
 >Note: Use your own openai API key by getting a free one [OpenAI](https://openai.com/) and paste it in .env file to use AI help features.
 
+>Note: Create a .env file in assets directory and paste  **OPENAI_API_KEY=** with your key after = sign to us help features.
+
 **DO NOT SHARE YOUR SECRET KEY -- DO NOT PUSH TO GITHUB WITH KEY ACTIVE**
 
 Use openai version 0.27

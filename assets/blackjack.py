@@ -191,7 +191,7 @@ def update_hi_lo_count(card, hi_lo_count):
         hi_lo_count['count'] += 1
     elif card['rank'] in ['10', 'Jack', 'Queen', 'King', 'Ace']:
         hi_lo_count['count'] -= 1
-    print(f"Current HI-Lo Count: {hi_lo_count['count']}")
+    # print(f"Current HI-Lo Count: {hi_lo_count['count']}")
 
 
 # Play a game of blackjack

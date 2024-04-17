@@ -59,7 +59,7 @@ python blackjack.py --play
                |                   |
                |                   `---> Game Recorded
                |
-               `---> [Potential additional branches:]
+               `---> 
                      |
                      `---> Dealer's hand dealt and calculated
                           |
@@ -67,7 +67,7 @@ python blackjack.py --play
                                |
                                |   `---> Determine winner (player, dealer or push)
                                |       |
-                               |       `---> Update player score/chips
+                               |       `---> Update player outcome/bet
                                |
                                `---> Offer player to play another hand
                                     |

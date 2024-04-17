@@ -1,6 +1,7 @@
 import os
 import random
 import openai
+import pygame
 from typing import List, Dict
 from rich.console import Console
 from rich.table import Table
@@ -8,19 +9,37 @@ from prompt_toolkit import prompt
 from sqlalchemy.orm import sessionmaker
 from ascii import deck_of_cards
 from betting import place_bets, table_bets
-from config import RANKS, SUITS, VALUES, HEADER, INSTRUCTIONS
-from models import GameSession, Player, get_db_engine, init_db
+from config import RANKS, SUITS, VALUES, header, instructions
+from models import (GameSession, Player, get_db_engine, init_db)
 from dotenv import load_dotenv
+from play_sound import play_card_draw_sound,play_loss_sound, play_shuffle_sound, play_win_sound, play_again_sound, play_start_sound
 
 console = Console()
 
+
+
+# Configure environment variables and OpenAI API key
 def configure() -> None:
-    """Load environment variables from .env file and configure OpenAI API key."""
+    """
+    Load environment variables from .env file and configure OpenAI API key.
+    This function is called at the start of the program to set up the required
+    configuration before running the game.
+    """
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def get_play_suggestion(player_hand: List[Dict[str, str]], dealer_hand: List[Dict[str, str]]) -> str:
-    """Get a play suggestion from the OpenAI API based on the current game state."""
+# Get play suggestion from OpenAI based on game state 
+def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
+    """
+    Get a play suggestion from OpenAI's GPT-3.5-turbo model based on the current game state.
+    
+    Args:
+        state (Dict[str, List[Dict[str, str]]]): A dictionary representing the current game state,
+            including the player's hand and the dealer's hand.
+            
+    Returns:
+        str: The suggested play action (e.g., "hit" or "stand") based on the game state.
+    """
     prompt_text = (
         f"Given the current game state:\n"
         f"Player hand: {player_hand}\n"
@@ -35,20 +54,53 @@ def get_play_suggestion(player_hand: List[Dict[str, str]], dealer_hand: List[Dic
     )
     return response.choices[0].text.strip()
 
+# Create a new deck of cards
 def create_deck() -> List[Dict[str, str]]:
-    """Create a standard 52-card deck."""
+    """
+    Create a new standard deck of 52 playing cards.
+    
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries representing each card in the deck,
+            where each dictionary contains the 'suit' and 'rank' of the card.
+    """
     return [{"suit": suit, "rank": rank} for suit in SUITS for rank in RANKS]
 
+# Shuffle the deck of cards
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
-    """Shuffle the deck in-place."""
+    play_shuffle_sound()
+    """
+    Shuffle the given deck of cards in-place using the Fisher-Yates shuffle algorithm.
+    
+    Args:
+        deck (List[Dict[str, str]]): The deck of cards to be shuffled.
+    """
     random.shuffle(deck)
 
+# Deal a card from the deck
 def deal_card(deck: List[Dict[str, str]]) -> Dict[str, str]:
-    """Deal a single card from the deck."""
+    play_card_draw_sound()
+    """
+    Deal a single card from the top of the deck.
+    
+    Args:
+        deck (List[Dict[str, str]]): The deck of cards to deal from.
+        
+    Returns:
+        Dict[str, str]: A dictionary representing the dealt card, containing its 'suit' and 'rank'.
+    """
     return deck.pop()
 
+# Calculate the value of a hand of cards
 def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
-    """Calculate the value of a hand."""
+    """
+    Calculate the total value of a hand of cards according to standard blackjack rules.
+    
+    Args:
+        hand (List[Dict[str, str]]): The hand of cards to calculate the value for.
+        
+    Returns:
+        int: The total value of the hand.
+    """
     value = sum(VALUES[card["rank"]] for card in hand)
     aces = sum(card["rank"] == "Ace" for card in hand)
     while value > 21 and aces:
@@ -56,9 +108,25 @@ def calculate_hand_value(hand: List[Dict[str, str]]) -> int:
         aces -= 1
     return value
 
-def display_hand(hand: List[Dict[str, str]], player: str, hide_dealer_card: bool = False) -> None:
-    """Display a player's hand using ASCII art."""
-    console.print(f"{player}'s hand:")
+# Display a hand of cards
+def display_hand(
+    hand: List[Dict[str, str]],
+    player: str,
+    hide_dealer_card: bool = False,
+    calculate_value: bool = True,
+) -> None:
+    """
+    Display a hand of cards using ASCII art and optionally calculate and display the hand's value.
+    
+    Args:
+        hand (List[Dict[str, str]]): The hand of cards to display.
+        player (str): The name of the player who holds the hand.
+        hide_dealer_card (bool, optional): Whether to hide the dealer's second card. Defaults to False.
+        calculate_value (bool, optional): Whether to calculate and display the hand's value. Defaults to True.
+    """
+    console.print(f"[bold blue]{player}'s hand:[/bold blue]")
+    card_names = []
+    ascii_arts = []
     for i, card in enumerate(hand):
         if hide_dealer_card and player == "Dealer" and i == 1:
             card_name = "Hidden"
@@ -74,22 +142,53 @@ def display_hand(hand: List[Dict[str, str]], player: str, hide_dealer_card: bool
     if not hide_dealer_card:
         console.print(f"Value: {calculate_hand_value(hand)}\n")
 
+# Get or create a player in the database
 def get_or_create_player(session, name: str) -> Player:
-    """Get or create a player by name."""
+    """
+    Retrieve a player from the database by name, or create a new player if not found.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        name (str): The name of the player to retrieve or create.
+        
+    Returns:
+        Player: The retrieved or newly created player object.
+    """
     player = session.query(Player).filter_by(name=name).first()
-    if not player:
+    if player is None:
         player = Player(name=name)
         session.add(player)
         session.commit()
     return player
 
+# Get a player's money bag amount from the database
 def get_player_money_bag(session, player_id: int) -> int:
-    """Get a player's current money bag amount."""
+    """
+    Retrieve the money bag amount for a player from the database.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player_id (int): The ID of the player to retrieve the money bag amount for.
+        
+    Returns:
+        int: The player's money bag amount, or None if the player is not found.
+    """
     player = session.query(Player).filter_by(id=player_id).first()
     return player.money_bag if player else None
 
+# Update a player's money bag amount in the database
 def update_player_money_bag(session, player_id: int, new_amount: int) -> None:
-    """Update a player's money bag amount."""
+    """
+    Update a player's money bag amount in the database.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player_id (int): The ID of the player to update the money bag amount for.
+        new_amount (int): The new money bag amount to set for the player.
+        
+    Raises:
+        Exception: If the player is not found in the database.
+    """
     player = session.query(Player).filter_by(id=player_id).first()
     if player:
         player.money_bag = new_amount
@@ -97,9 +196,24 @@ def update_player_money_bag(session, player_id: int, new_amount: int) -> None:
     else:
         raise Exception("Player not found")
 
-def record_game_session(session, player_id: int, dealer_hand: List[Dict[str, str]], 
-                        player_hand: List[Dict[str, str]], outcome: str) -> None:
-    """Record a game session in the database."""
+# Record a game session in the database
+def record_game_session(
+    session,
+    player_id: int,
+    dealer_hand: List[Dict[str, str]],
+    player_hand: List[Dict[str, str]],
+    outcome: str,
+) -> None:
+    """
+    Record a completed game session in the database.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player_id (int): The ID of the player who played the game.
+        dealer_hand (List[Dict[str, str]]): The dealer's hand at the end of the game.
+        player_hand (List[Dict[str, str]]): The player's hand at the end of the game.
+        outcome (str): The outcome of the game (e.g., "Win", "Loss", "Tie").
+    """
     game_session = GameSession(
         player_id=player_id,
         dealer_hand_value=calculate_hand_value(dealer_hand),
@@ -109,135 +223,199 @@ def record_game_session(session, player_id: int, dealer_hand: List[Dict[str, str
     session.add(game_session)
     session.commit()
 
-def get_user_input(prompt_text: str) -> str:
-    """Get user input with validation."""
-    while True:
-        user_input = prompt(prompt_text).strip().lower()
-        if user_input:
-            return user_input
-        console.print("Invalid input. Please try again.", style="bold red")
+# Get user input with validation
+def get_user_input(prompt_text: str, allow_empty=False) -> str:
+    # """
+    # Prompt the user for input and validate the input.
+    
+    # Args:
+    #     prompt_text (str): The text to display as the prompt to the user.
+        
+    # Returns:
+    #     str: The user's input, stripped of leading/trailing whitespace.
+    # """
+    # while True:
+    #     user_input = prompt(prompt_text).strip().lower()
+    #     if user_input:
+    #         return user_input
+    #     console.print("Invalid input. Please try again.", style="bold red")
+        
+        while True:
+            user_input = input(prompt_text).strip().lower()
+            if user_input or allow_empty:
+                return user_input
+            console.print("Invalid input. Please try again.", style="bold red")
 
-def computer_play(deck: List[Dict[str, str]]) -> List[Dict[str, str]]:
-    """Simulate a computer player's turn."""
-    hand = []
-    while calculate_hand_value(hand) < 17:
-        hand.append(deal_card(deck))
-    return hand
-
-def play_game(session, players, bet):
-    """Play a single game of Blackjack."""
+# Play a game of blackjack
+def play_game(session, player: Player) -> None:
+    """
+    Play a single game of blackjack.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player (Player): The player object representing the user playing the game.
+    """
     os.system("clear")
     deck = create_deck()
+    player_id = player.id
+    current_money = get_player_money_bag(session, player_id)
+    
+    # Extend credit if player is out of money
+    if current_money < 1:
+        print("Sorry you've had a string of bad luck. We're extending you $100 in credit.")
+        update_player_money_bag(session, player_id, 100)
+        current_money = 100
+        prompt("Press enter to continue")
+    
+    # Place bets
+    bet = table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
+        
     shuffle_deck(deck)
 
     dealer_hand = [deal_card(deck), deal_card(deck)]
-    player_hands = {player.id: [deal_card(deck), deal_card(deck)] for player in players}
+
+    # display_hand(dealer_hand, "Dealer", hide_dealer_card=True, calculate_value=False)
+    # display_hand(player_hand, "Player")
     
-    display_hand(dealer_hand, "Dealer", hide_dealer_card=True)
-    for player in players:
-        display_hand(player_hands[player.id], player.name)
+    display_hand([dealer_hand[0], {"rank": "Hidden", "suit": ""}], "Dealer", hide_dealer_card=True, calculate_value=False)
+    display_hand(player_hand, "Player", hide_dealer_card=False, calculate_value=True)
+    
+    # Check for blackjack
+    if calculate_hand_value(player_hand) == 21 and calculate_hand_value(dealer_hand) < 21:
+        print(f"{header}")
+        print("You won!")
+        new_amount = get_player_money_bag(session, player_id) + (2.5 * bet)
+        update_player_money_bag(session, player_id, new_amount)
+        return dealer_hand, player_hand, "Win"
 
-    for player in players:
-        player_id = player.id
-        player_hand = player_hands[player_id]
-
-        if calculate_hand_value(player_hand) == 21:
-            console.print(f"{player.name} has Blackjack!")
-            new_amount = get_player_money_bag(session, player_id) + (2.5 * bet)
-            update_player_money_bag(session, player_id, new_amount)
-            record_game_session(session, player_id, dealer_hand, player_hand, "Win")
-            continue
-
-        while calculate_hand_value(player_hand) < 21:
-            if player.name != "Computer":
-                action = get_user_input(f"{player.name}, do you want to hit, stand or get help? ")
-            else:
-                action = "stand" if calculate_hand_value(player_hand) >= 17 else "hit"
-                console.print(f"Computer {player.name} chooses to {action}")
-
-            if action == "hit":
-                player_hand.append(deal_card(deck))
-                display_hand(player_hand, player.name)
-            elif action == "stand":
-                break
-            elif action == "help":
-                suggestion = get_play_suggestion(player_hand, dealer_hand)
-                console.print("Suggested play:", style="bold green")
-                console.print(suggestion)
-
-        player_hands[player_id] = player_hand
+    # Player's turn
+    # while calculate_hand_value(player_hand) < 21:
+    #     action = get_user_input("Do you want to hit, stand or get help? ")
+    #     if action == "hit":
+    #         os.system("clear")
+    #         player_hand.append(deal_card(deck))
+    #         display_hand(player_hand, "Player")
+    #         display_hand(dealer_hand, "Dealer")
+    #     elif action == "stand":
+    #         break
+    #     elif action == "help":
+    #         suggestion = get_play_suggestion(
+    #             {"player_hand": player_hand, "dealer_hand": dealer_hand}
+    #         )
+    #         console.print("Suggested play:", style="bold green")
+    #         console.print(suggestion)
+    
+    
+    while calculate_hand_value(player_hand) < 21:
+        action = get_user_input("Do you want to hit, stand or get help? ")
+        if action == "hit":
+            player_hand.append(deal_card(deck))
+            os.system("clear")
+            display_hand([dealer_hand[0], {"rank": "Hidden", "suit": ""}], "Dealer", hide_dealer_card=True, calculate_value=False)
+            display_hand(player_hand, "Player")
+        elif action == "stand":
+            break
+        elif action == "help":
+            suggestion = get_play_suggestion(
+                {"player_hand": player_hand, "dealer_hand": dealer_hand}
+            )
+            console.print("Suggested play:", style="bold green")
+            console.print(suggestion)
+    
 
     console.print("Revealing Dealer's Hand...")
-    display_hand(dealer_hand, "Dealer")
-
+    display_hand(dealer_hand, "Dealer", hide_dealer_card=False, calculate_value=True)
     while calculate_hand_value(dealer_hand) < 17:
         dealer_hand.append(deal_card(deck))
-        display_hand(dealer_hand, "Dealer")
+        display_hand(dealer_hand, "Dealer", hide_dealer_card=False, calculate_value=True)
 
     dealer_hand_value = calculate_hand_value(dealer_hand)
-
-    for player in players:
-        player_id = player.id
-        player_hand = player_hands[player_id]
-        player_hand_value = calculate_hand_value(player_hand)
-
-        if player_hand_value > 21:
-            console.print(f"{player.name} busts!")
-            outcome = "Loss"
-        elif dealer_hand_value > 21:
-            console.print(f"Dealer busts! {player.name} wins.")
-            new_amount = get_player_money_bag(session, player_id) + (2 * bet)
-            update_player_money_bag(session, player_id, new_amount)
-            outcome = "Win"
-        elif player_hand_value > dealer_hand_value:
-            console.print(f"{player.name} wins!")
-            new_amount = get_player_money_bag(session, player_id) + (2 * bet)
-            update_player_money_bag(session, player_id, new_amount)
-            outcome = "Win"
-        elif player_hand_value < dealer_hand_value:
-            console.print(f"{player.name} loses.")
-            outcome = "Loss"
-        else:
-            console.print(f"{player.name} ties with the dealer.")
-            outcome = "Tie"
-
-        record_game_session(session, player_id, dealer_hand, player_hand, outcome)
+    
+    # Determine winner
+    if player_hand_value > 21:
+        play_loss_sound()
+        console.print("Player busts! Dealer wins.")
+        outcome = "Loss"
+    elif dealer_hand_value > 21:
+        play_win_sound()
+        console.print("Dealer busts! Player wins.")
+        new_amount = get_player_money_bag(session, player_id) + (2 * bet)
+        update_player_money_bag(session, player_id, new_amount)
+        outcome = "Win"     
+    elif player_hand_value > dealer_hand_value:
+        play_win_sound()
+        new_amount = get_player_money_bag(session, player_id) + (2 * bet)
+        update_player_money_bag(session, player_id, new_amount)
+        console.print("Player wins!")
+        outcome = "Win"
+    elif player_hand_value < dealer_hand_value:
+        play_loss_sound()
+        console.print("Dealer wins!")
+        outcome = "Loss"
+    else:
+        console.print("It's a tie!")
+        play_loss_sound()
+        new_amount = get_player_money_bag(session, player_id) + (bet)
+        update_player_money_bag(session, player_id, new_amount)
+        outcome = "Tie"
         
-        
-def blackjack_game(session):
-    """Play multiple games of Blackjack."""
-    console.print(HEADER)
-    console.print(INSTRUCTIONS)
+    play_again_sound()
+    
+    return dealer_hand, player_hand, outcome
+    
 
-    num_computer_players = int(get_user_input("Enter the number of computer players (0-2): "))
-    if num_computer_players not in [0, 1, 2]:
-        console.print("Invalid number of computer players. Defaulting to 0.", style="bold red")
-        num_computer_players = 0
+# Main blackjack game loop
+def blackjack_game(session) -> None:
+    # """
+    # The main game loop for playing multiple rounds of blackjack.
+    
+    # Args:
+    #     session: The SQLAlchemy database session.
+    # """
+    # os.system("clear")
+    # console.print(header)
+    # console.print(instructions)
+    # play_start_sound()
+    
+    # while True:
+    #     os.system("clear")
+    #     player_name = get_user_input("Please enter your player name: ")
+    #     player = get_or_create_player(session, player_name)
+    #     dealer_hand, player_hand, outcome = play_game(session, player)
+    #     record_game_session(session, player.id, dealer_hand, player_hand, outcome)
 
-    players = []
-    for i in range(num_computer_players):
-        computer_player = get_or_create_player(session, f"Computer {i+1}")
-        players.append(computer_player)
+    #     play_again = get_user_input("Do you want to play again? (yes/no): ")
+    #     if play_again != "yes":
+    #         os.system("clear")
+    #         console.print("Thanks for playing!")
+    #         break
+    
+    os.system("clear")
+    console.print(header)
+    console.print(instructions)
+    play_start_sound()
+    
+    # Initial setup: Get the player's name only once
+    player_name = get_user_input("Please enter your player name: ", allow_empty=False)
+    player = get_or_create_player(session, player_name)
 
     while True:
-        player_name = get_user_input("Please enter your player name (or 'quit' to exit): ")
-        if player_name == "quit":
+        os.system("clear")
+        console.print(f"Welcome back, {player_name}!")
+
+        # Start a new game with the existing player object
+        dealer_hand, player_hand, outcome = play_game(session, player)
+        record_game_session(session, player.id, dealer_hand, player_hand, outcome)
+
+        # Ask the user if they want to play again
+        play_again = get_user_input("Press Enter to play again or type 'no' to exit: ", allow_empty=True)
+        if play_again.lower() == "no":
+            os.system("clear")
             console.print("Thanks for playing!")
             break
+     
 
-        human_player = get_or_create_player(session, player_name)
-        players.append(human_player)
-
-        bet = int(get_user_input("Enter your bet amount: "))
-        play_game(session, players, bet)
-
-        players.remove(human_player)
-
-        play_again = get_user_input("Do you want to play again? (yes/no): ")
-        if play_again != "yes":
-            console.print("Thanks for playing!")
-            break
-
+# View past game outcomes
 def view_game_outcomes(session) -> None:
     """View past game outcomes."""
     query = (
@@ -269,6 +447,7 @@ def view_game_outcomes(session) -> None:
 
     console.print(table)
 
+# Main program entry point
 def main() -> None:
     """Main function to run the Blackjack game."""
     configure()
@@ -278,6 +457,7 @@ def main() -> None:
     Session = sessionmaker(bind=engine)
 
     with Session() as session:
+        
         while True:
             action = get_user_input(
                 "Enter 'play' to start a new game, 'view' to view past outcomes, or 'quit' to exit: "
@@ -288,9 +468,11 @@ def main() -> None:
                 view_game_outcomes(session)
             elif action == "quit":
                 console.print("Goodbye!")
+                os.system("clear")
                 break
             else:
                 console.print("Invalid input. Please try again.", style="bold red")
 
+# Run the main program
 if __name__ == "__main__":
     main()

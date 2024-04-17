@@ -25,8 +25,8 @@ def configure() -> None:
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
-def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
+# Get play suggestion from OpenAI based on game state 
+def get_play_suggestion(state: Dict[str, List[Dict[str, str]]], hi_lo_count: int) -> str:
     """
     Get a play suggestion from OpenAI based on the current game state.
     
@@ -54,8 +54,16 @@ def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
 
 
 def create_deck() -> List[Dict[str, str]]:
-    """Create a new standard deck of 52 playing cards."""
-    return [{"suit": suit, "rank": rank} for suit in SUITS for rank in RANKS]
+    """
+    Create a new standard deck of 52 playing cards.
+    
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries representing each card in the deck,
+            where each dictionary contains the 'suit' and 'rank' of the card.
+    """
+    num_decks = 1
+    return [{"suit": suit, "rank": rank} for suit in SUITS for rank in RANKS for _ in range(num_decks)]
+
 
 
 def shuffle_deck(deck: List[Dict[str, str]]) -> None:
@@ -170,18 +178,51 @@ def record_game_session(
 
 
 def get_user_input(prompt_text: str, allow_empty=False) -> str:
-    """Get user input with validation."""
-    while True:
-        user_input = input(prompt_text).strip().lower()
-        if user_input or allow_empty:
-            return user_input
-        console.print("Invalid input. Please try again.", style="bold red")
+    # """
+    # Prompt the user for input and validate the input.
+    
+    # Args:
+    #     prompt_text (str): The text to display as the prompt to the user.
+        
+    # Returns:
+    #     str: The user's input, stripped of leading/trailing whitespace.
+    # """
+    # while True:
+    #     user_input = prompt(prompt_text).strip().lower()
+    #     if user_input:
+    #         return user_input
+    #     console.print("Invalid input. Please try again.", style="bold red")
+        
+        while True:
+            user_input = input(prompt_text).strip().lower()
+            if user_input or allow_empty:
+                return user_input
+            console.print("Invalid input. Please try again.", style="bold red")
+            
+            
+def update_hi_lo_count(card, hi_lo_count):
+    if card['rank'] in ['2', '3', '4', '5', '6']:
+        hi_lo_count['count'] += 1
+    elif card['rank'] in ['10', 'Jack', 'Queen', 'King', 'Ace']:
+        hi_lo_count['count'] -= 1
+    print(f"Current HI-Lo Count: {hi_lo_count['count']}")
 
 
-def play_game(session, player: Player) -> None:
-    """Play a single game of blackjack."""
-    os.system("clear")
-    deck = create_deck()
+# Play a game of blackjack
+def play_game(session, player: Player, deck: List[Dict[str, str]], hi_lo_count: dict) -> None:
+    """
+    Play a single game of blackjack.
+    
+    Args:
+        session: The SQLAlchemy database session.
+        player (Player): The player object representing the user playing the game.
+        hi_lo_count (dict): The dictionary storing the current Hi-Lo count.
+    """
+    
+    if 'count' not in hi_lo_count:
+        hi_lo_count['count'] = 0
+        
+    
     player_id = player.id
     current_money = get_player_money_bag(session, player_id)
 
@@ -193,13 +234,12 @@ def play_game(session, player: Player) -> None:
 
     bet = table_bets(session, player_id, current_money, get_player_money_bag, update_player_money_bag)
 
-    shuffle_deck(deck)
-
     player_hand = [deal_card(deck), deal_card(deck)]
+    for card in player_hand:
+        update_hi_lo_count(card, hi_lo_count)
     dealer_hand = [deal_card(deck), deal_card(deck)]
+    update_hi_lo_count(dealer_hand[0], hi_lo_count)
     
-    os.system("clear")
-
     display_hand([dealer_hand[0], {"rank": "Hidden", "suit": ""}], "Dealer", hide_dealer_card=True, calculate_value=False)
     display_hand(player_hand, "Player", hide_dealer_card=False, calculate_value=True)
 
@@ -214,7 +254,9 @@ def play_game(session, player: Player) -> None:
     while calculate_hand_value(player_hand) < 21:
         action = get_user_input("Do you want to hit, stand or get help? ")
         if action == "hit":
-            player_hand.append(deal_card(deck))
+            new_card = deal_card(deck)
+            player_hand.append(new_card)
+            update_hi_lo_count(new_card, hi_lo_count)
             os.system("clear")
             display_hand([dealer_hand[0], {"rank": "Hidden", "suit": ""}], "Dealer", hide_dealer_card=True, calculate_value=False)
             display_hand(player_hand, "Player")
@@ -222,15 +264,18 @@ def play_game(session, player: Player) -> None:
             break
         elif action == "help":
             suggestion = get_play_suggestion(
-                {"player_hand": player_hand, "dealer_hand": dealer_hand}
+                {"player_hand": player_hand, "dealer_hand": dealer_hand,}, hi_lo_count['count']
             )
             console.print("Suggested play:", style="bold green")
             console.print(suggestion)
 
     console.print("Revealing Dealer's Hand...")
     display_hand(dealer_hand, "Dealer", hide_dealer_card=False, calculate_value=True)
+    update_hi_lo_count(dealer_hand[1], hi_lo_count)
     while calculate_hand_value(dealer_hand) < 17:
-        dealer_hand.append(deal_card(deck))
+        new_card = deal_card(deck)
+        dealer_hand.append(new_card)
+        update_hi_lo_count(new_card, hi_lo_count)
         display_hand(dealer_hand, "Dealer", hide_dealer_card=False, calculate_value=True)
 
     player_hand_value = calculate_hand_value(player_hand)
@@ -274,6 +319,13 @@ def blackjack_game(session) -> None:
     console.print(header)
     console.print(instructions)
     play_start_sound()
+    
+    # Create and shuffle the shoe
+    deck = create_deck()
+    shuffle_deck(deck)
+    
+    # Initialize Hi-Lo count
+    hi_lo_count = {'count': 0}
 
     player_name = get_user_input("Please enter your player name: ", allow_empty=False)
     player = get_or_create_player(session, player_name)
@@ -282,7 +334,8 @@ def blackjack_game(session) -> None:
         os.system("clear")
         console.print(f"Welcome back, {player_name}!")
 
-        dealer_hand, player_hand, outcome = play_game(session, player)
+        # Start a new game with the existing player object
+        dealer_hand, player_hand, outcome = play_game(session, player, deck, hi_lo_count)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
 
         play_again = get_user_input("Press Enter to play again or type 'no' to exit: ", allow_empty=True)

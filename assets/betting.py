@@ -1,6 +1,6 @@
 from prompt_toolkit import prompt
 from rich.console import Console
-
+from play_sound import coin_sound
 console = Console
 
 def place_bets(session, max_bet, player_id, 
@@ -19,6 +19,7 @@ def place_bets(session, max_bet, player_id,
                 continue
             new_bag = current_money_bag - bet
             function_two(session, player_id, new_bag)
+            coin_sound()
             return bet
         except ValueError:
             print("Invalid input. Please enter a numerical value.")

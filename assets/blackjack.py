@@ -7,39 +7,16 @@ from rich.console import Console
 from rich.table import Table
 from prompt_toolkit import prompt
 from sqlalchemy.orm import sessionmaker
-
 from ascii import deck_of_cards
 from betting import place_bets, table_bets
 from config import RANKS, SUITS, VALUES, header, instructions
 from models import (GameSession, Player, get_db_engine, init_db)
 from dotenv import load_dotenv
+from play_sound import play_card_draw_sound,play_loss_sound, play_shuffle_sound, play_win_sound, play_again_sound, play_start_sound
 
 console = Console()
 
-"""get_busy function returns 'true' if sound is still playing when checked. Clock().tick(10) defines an amount of time
-to wait before checking if the sound has finished playing."""
-def play_sound(file_path: str):
-    pygame.mixer.init()
-    pygame.mixer.music.load(file_path)
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy():
-        pygame.time.Clock().tick(10)
-        
-def play_card_draw_sound():
-    """Plays the sound effect for drawing a card."""
-    play_sound("cardsounds/card-sounds-35956.wav")
 
-def play_shuffle_sound():
-    """Plays the sound effect for shuffling the deck."""
-    play_sound("cardsounds/shuffle-cards-46455.wav")
-    
-def play_win_sound():
-    """Plays a victory sound"""
-    play_sound("cardsounds/success-1-6297.wav")
-    
-def play_loss_sound():
-    """Plays a loss buzzer"""
-    play_sound("cardsounds/wrong-buzzer-6268.wav")
 
 # Configure environment variables and OpenAI API key
 def configure() -> None:
@@ -364,8 +341,11 @@ def play_game(session, player: Player) -> None:
         new_amount = get_player_money_bag(session, player_id) + (bet)
         update_player_money_bag(session, player_id, new_amount)
         outcome = "Tie"
-      
+        
+    play_again_sound()
+    
     return dealer_hand, player_hand, outcome
+    
 
 # Main blackjack game loop
 def blackjack_game(session) -> None:
@@ -375,17 +355,21 @@ def blackjack_game(session) -> None:
     Args:
         session: The SQLAlchemy database session.
     """
+    os.system("clear")
     console.print(header)
     console.print(instructions)
+    play_start_sound()
+    
     while True:
+        os.system("clear")
         player_name = get_user_input("Please enter your player name: ")
         player = get_or_create_player(session, player_name)
-
         dealer_hand, player_hand, outcome = play_game(session, player)
         record_game_session(session, player.id, dealer_hand, player_hand, outcome)
 
         play_again = get_user_input("Do you want to play again? (yes/no): ")
         if play_again != "yes":
+            os.system("clear")
             console.print("Thanks for playing!")
             break
 
@@ -429,6 +413,7 @@ def main() -> None:
     Session = sessionmaker(bind=engine)
 
     with Session() as session:
+        
         while True:
             action = get_user_input(
                 "Enter 'play' to start a new game, 'view' to view past outcomes, or 'quit' to exit: "
@@ -439,6 +424,7 @@ def main() -> None:
                 view_game_outcomes(session)
             elif action == "quit":
                 console.print("Goodbye!")
+                os.system("clear")
                 break
             else:
                 console.print("Invalid input. Please try again.", style="bold red")

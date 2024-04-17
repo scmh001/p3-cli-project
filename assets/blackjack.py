@@ -14,7 +14,7 @@ from models import GameSession, Player, get_db_engine, init_db
 from dotenv import load_dotenv
 from play_sound import (
     play_card_draw_sound, play_loss_sound, play_shuffle_sound,
-    play_win_sound, play_again_sound, play_start_sound
+    play_win_sound, play_again_sound, play_start_sound, play_cheer_sound
 )
 
 console = Console()

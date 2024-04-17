@@ -306,15 +306,15 @@ def blackjack_game(session) -> None:
     console.print(instructions)
     play_start_sound()
     
-    # Create and shuffle the shoe
+    player_name = get_user_input("Please enter your player name: ", allow_empty=False)
+    player = get_or_create_player(session, player_name)
+    
+     # Create and shuffle the shoe
     deck = create_deck()
     shuffle_deck(deck)
     
     # Initialize Hi-Lo count
     hi_lo_count = {'count': 0}
-
-    player_name = get_user_input("Please enter your player name: ", allow_empty=False)
-    player = get_or_create_player(session, player_name)
 
     while True:
         os.system("clear")

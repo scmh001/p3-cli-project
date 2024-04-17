@@ -66,17 +66,17 @@ The database contains two tables:
 ## 🗺️ Decision Tree
 >Decision Tree
 
-<img src="planning/decisiontree2.JPG" alt="decision-tree">
+<img src="planning/decisiontree3.JPG" alt="decision-tree">
 
 ## 🗺️ Diagram
 > Diagram of database including relationships, constraints, intended CRUD actions
 
-<img src="planning/diagram5.JPG" alt="diagram">
+<img src="planning/diagram6.JPG" alt="diagram">
 
 ## 🗺️ Trello Board
 >The project tasks and progress were managed using a Trello board
 
-<img src="planning/trello2.JPG" alt="trello"/>
+<img src="planning/trello3.JPG" alt="trello"/>
 
 ## 🤝 Meet the Team
 

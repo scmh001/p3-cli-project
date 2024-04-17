@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="zAniaEt_RxNO2EOFRG_g" name="Page-1">
-        <mxGraphModel dx="1140" dy="1547" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="892" dy="1233" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -9,7 +9,7 @@
                         <mxPoint x="353" y="-149" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="2" value="python blackjack.py --play" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="2" value="python blackjack.py&amp;nbsp;&lt;br&gt;type play" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="75" y="-179" width="193" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="7" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="5" edge="1">
@@ -25,7 +25,7 @@
                         <mxPoint x="748" y="-36" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="6" value="Deck Shuffled" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="6" value="Choose bet amount" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="651" y="-179" width="193" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="11" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="8" edge="1">
@@ -34,7 +34,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="8" value="Cards are dealt" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="651" y="-21" width="193" height="60" as="geometry"/>
+                    <mxGeometry x="649" y="-21" width="193" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="13" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="10" edge="1">
                     <mxGeometry relative="1" as="geometry">
@@ -52,24 +52,20 @@
                 <mxCell id="12" value="Calculate hand total" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="75" y="-21" width="193" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="14" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="350" y="156" as="targetPoint"/>
-                    </mxGeometry>
+                <mxCell id="19" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="14" target="18">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="14" value="Players chooses hit / stand" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="75" y="126" width="193" height="60" as="geometry"/>
+                    <mxGeometry x="75" y="121" width="193" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="19" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="16" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="639" y="156" as="targetPoint"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="16" value="Game Executed" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="365" y="126" width="193" height="60" as="geometry"/>
+                <mxCell id="21" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="18" target="20">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="18" value="Game Recorded" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="651" y="126" width="193" height="60" as="geometry"/>
+                    <mxGeometry x="365" y="121" width="193" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="Replay?" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="649" y="121" width="193" height="60" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

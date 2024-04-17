@@ -197,6 +197,8 @@ def play_game(session, player: Player) -> None:
 
     player_hand = [deal_card(deck), deal_card(deck)]
     dealer_hand = [deal_card(deck), deal_card(deck)]
+    
+    os.system("clear")
 
     display_hand([dealer_hand[0], {"rank": "Hidden", "suit": ""}], "Dealer", hide_dealer_card=True, calculate_value=False)
     display_hand(player_hand, "Player", hide_dealer_card=False, calculate_value=True)

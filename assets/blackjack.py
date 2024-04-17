@@ -27,7 +27,7 @@ def configure() -> None:
 
 
 def get_play_suggestion(state: Dict[str, List[Dict[str, str]]]) -> str:
-        """
+    """
     Get a play suggestion from OpenAI based on the current game state.
     
     Args:
@@ -86,7 +86,7 @@ def display_hand(
     hide_dealer_card: bool = False,
     calculate_value: bool = True,
 ) -> None:
-     """
+    """
     Display a hand of cards using ASCII art.
     
     Args:

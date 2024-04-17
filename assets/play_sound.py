@@ -40,3 +40,7 @@ def play_title_music():
 def play_start_sound():
     """Plays sound at game start"""
     play_sound("cardsounds/start_game_sound.wav")
+    
+def play_cheer_sound():
+    """Plays cheering sound when player hits blackjack"""
+    play_sound("cardsounds/blackjack_cheer.wav")

@@ -20,11 +20,6 @@ VALUES = {
     'King': 10
 }
 
-# db
-# Database connection
-DB_NAME = 'jack.db'
-
-
 
 # Instructions for introduction to game play.
 

@@ -12,7 +12,7 @@ from betting import place_bets, table_bets
 from config import RANKS, SUITS, VALUES, header, instructions
 from models import (GameSession, Player, get_db_engine, init_db)
 from dotenv import load_dotenv
-from play_sound import play_card_draw_sound,play_loss_sound, play_shuffle_sound, play_win_sound, play_again_sound, play_start_sound
+from play_sound import play_card_draw_sound,play_loss_sound, play_shuffle_sound, play_win_sound, play_again_sound, play_start_sound, play_cheer_sound
 
 console = Console()
 
@@ -295,7 +295,8 @@ def play_game(session, player: Player) -> None:
     # Check for blackjack
     if calculate_hand_value(player_hand) == 21 and calculate_hand_value(dealer_hand) < 21:
         print(f"{header}")
-        print("You won!")
+        play_cheer_sound()
+        print("You hit blackjack!")
         new_amount = get_player_money_bag(session, player_id) + (2.5 * bet)
         update_player_money_bag(session, player_id, new_amount)
         return dealer_hand, player_hand, "Win"

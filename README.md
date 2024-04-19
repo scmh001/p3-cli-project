@@ -2,6 +2,7 @@
 
 ## Description
 Blackjack CLI is a command-line interface application that lets you experience the thrill of the classic casino card game right from your terminal. Engage in a challenging game against a computerized dealer and test your strategy and luck.
+The project incorporates sophisticated card counting logic, which the AI leverages to provide optimal decision-making assistance to players
 
 ## 🚀 Usage
 To start type command below in user-terminal; type play; enter player name; begin.
